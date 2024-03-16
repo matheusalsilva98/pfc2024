@@ -19,7 +19,8 @@ if __name__ == '__main__':
     dm = UNetDataModule(
         imgs_dir=config.IMGS_DIR, 
         masks_dir=config.MASKS_DIR, 
-        val_percent=config.VAL_PERCENT, 
+        val_percent=config.VAL_PERCENT,
+        test_percent=config.TEST_PERCENT, 
         batch_size=config.BATCH_SIZE, 
         num_workers=config.NUM_WORKERS,
     )
