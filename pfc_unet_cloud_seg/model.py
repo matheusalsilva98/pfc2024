@@ -8,7 +8,7 @@ import torchvision
 
 class UNet(pl.LightningModule):
     def __init__(self, n_channels, n_classes, learning_rate, bilinear=True):
-        super(UNet, self).__init__()
+        super().__init__()
         self.n_channels = n_channels
         self.n_classes = n_classes
         self.lr = learning_rate
@@ -27,6 +27,10 @@ class UNet(pl.LightningModule):
         self.outc = OutConv(64, n_classes)
 
         self.jaccard_index = MulticlassJaccardIndex(num_classes=n_classes)
+        #self.training_step_outputs1 = []
+        #self.training_step_outputs2 = []
+        #self.validation_step_outputs1 = []
+        #self.validation_step_outputs2 = []
 
     def forward(self, x):
         x1 = self.inc(x)
@@ -40,6 +44,35 @@ class UNet(pl.LightningModule):
         x = self.up4(x, x1)
         logits = self.outc(x)
         return logits
+    
+    # def on_train_epoch_end(self):
+    #     #  the function is called after every epoch is completed
+
+    #     all_loss = torch.stack(self.training_step_outputs[0])
+    #     all_jaccard = torch.stack(self.training_step_outputs[1])
+
+    #     loss_epoch_mean = all_loss.mean()
+    #     jaccard_epoch_mean = all_jaccard.mean()
+
+    #     self.log("loss_training_epoch_mean", loss_epoch_mean)
+    #     self.log("jaccard_index_training_epoch_mean", jaccard_epoch_mean)
+
+    #     self.training_step_outputs.clear()  # free memory
+
+    # def on_validation_epoch_end(self):
+    #     #  the function is called after every epoch is completed
+
+    #     all_loss = torch.stack(self.validation_step_outputs[0])
+    #     all_jaccard = torch.stack(self.validation_step_outputs[1])
+
+    #     loss_epoch_mean = all_loss.mean()
+    #     jaccard_epoch_mean = all_jaccard.mean()
+
+    #     self.log("loss_validation_epoch_mean", loss_epoch_mean)
+    #     self.log("jaccard_index_validation_epoch_mean", jaccard_epoch_mean)
+
+    #     self.validation_step_outputs.clear()  # free memory
+
     
     def training_step(self, batch, batch_idx):
         x, y = batch['image'], batch['mask']
@@ -55,15 +88,56 @@ class UNet(pl.LightningModule):
             prog_bar=True,
         )
 
+        #self.training_step_outputs1.append(loss)
+        #self.training_step_outputs2.append(jaccard_index)
+        tensorboard_logs = {'jaccard_index': {'train': jaccard_index }, 'loss':{'train': loss }}
+
         if batch_idx % 100:
-            x = x[:8]
-            grid = torchvision.utils.make_grid(x.view(-1, 1, 512, 512))
-            self.logger.experiment.add_image('unet_images', grid, self.global_step)
-        return {'loss': loss, 'y_pred': y_pred, 'y': y}
+            #x = x[:1]
+            #grid = torchvision.utils.make_grid(x.view(-1, 1, 512, 512))
+            grid = torchvision.utils.make_grid(y_pred, nrow=2)
+            self.logger.experiment.add_image('train_unet_images', grid, self.global_step)
+        return {'loss': loss, 'y_pred': y_pred, 'y': y, 'log': tensorboard_logs}
 
     def validation_step(self, batch, batch_idx):
+        x, y = batch['image'], batch['mask']
         loss, y_pred, y = self._common_step(batch, batch_idx)
-        self.log('validation_loss', loss)
+        jaccard_index = self.jaccard_index(y_pred, y)
+        self.log_dict(
+            {
+                'validation_loss': loss, 
+                'validation_jaccard_index': jaccard_index
+            },
+            on_step=False, 
+            on_epoch=True, 
+            prog_bar=True,
+        )
+
+        #self.validation_step_outputs1.append(loss)
+        #self.validation_step_outputs2.append(loss)
+        tensorboard_logs = {'jaccard_index': {'train': jaccard_index }, 'loss':{'train': loss }}
+
+        if batch_idx % 100:
+            #x = x[:1]
+            #grid = torchvision.utils.make_grid(x.view(-1, 1, 512, 512))
+            grid = torchvision.utils.make_grid(y_pred, nrow=2)
+            self.logger.experiment.add_image('validation_unet_images', grid, self.global_step)
+
+        return {'loss': loss, 'log': tensorboard_logs} 
+    
+    def test_step(self, batch, batch_idx):
+        loss, y_pred, y = self._common_step(batch, batch_idx)
+        jaccard_index = self.jaccard_index(y_pred, y)
+        self.log_dict(
+            {
+                'test_loss': loss, 
+                'test_jaccard_index': jaccard_index
+            },
+            on_step=False, 
+            on_epoch=True, 
+            prog_bar=True,
+        )
+
         return loss
        
     def _common_step(self, batch, batch_idx):
@@ -94,7 +168,8 @@ class UNet(pl.LightningModule):
     
     def configure_optimizers(self):
         optimizer = optim.Adam(self.parameters(), lr=self.lr)
-        return optimizer
+        scheduler = optim.lr_scheduler.ReduceLROnPlateau(optimizer, 'min', patience=2)
+        return {"optimizer": optimizer, "lr_scheduler": scheduler, "monitor": "validation_loss"}
 
 class DoubleConv(nn.Module):
     """(convolution => [BN] => ReLU) * 2"""
