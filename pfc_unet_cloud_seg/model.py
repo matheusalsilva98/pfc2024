@@ -1,4 +1,5 @@
 import torch
+torch.backends.cudnn.enabled = False
 import torch.nn as nn
 import torch.nn.functional as F
 import pytorch_lightning as pl
@@ -92,11 +93,11 @@ class UNet(pl.LightningModule):
         #self.training_step_outputs2.append(jaccard_index)
         tensorboard_logs = {'jaccard_index': {'train': jaccard_index }, 'loss':{'train': loss }}
 
-        if batch_idx % 100:
-            #x = x[:1]
-            #grid = torchvision.utils.make_grid(x.view(-1, 1, 512, 512))
-            grid = torchvision.utils.make_grid(y_pred, nrow=2)
-            self.logger.experiment.add_image('train_unet_images', grid, self.global_step)
+        # if batch_idx % 100:
+        #     #x = x[:1]
+        #     #grid = torchvision.utils.make_grid(x.view(-1, 1, 512, 512))
+        #     grid = torchvision.utils.make_grid(y_pred, nrow=2)
+        #     self.logger.experiment.add_image('train_unet_images', grid, self.global_step)
         return {'loss': loss, 'y_pred': y_pred, 'y': y, 'log': tensorboard_logs}
 
     def validation_step(self, batch, batch_idx):
@@ -143,6 +144,7 @@ class UNet(pl.LightningModule):
     def _common_step(self, batch, batch_idx):
         x, y = batch['image'], batch['mask']
         y = y.long()
+        x = x.to(torch.float32)
         y_pred = self.forward(x)
         # class_counts = torch.unique(y)
         # total_samples = len(y)

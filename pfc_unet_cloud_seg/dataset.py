@@ -8,6 +8,7 @@ from os import listdir
 import imageio.v2 as imageio
 from torch.utils.data import DataLoader, random_split
 import config
+import numpy as np
 
 class UNetDataModule(pl.LightningDataModule):
     def __init__(self, imgs_dir, masks_dir, val_percent, test_percent, batch_size, num_workers):
@@ -82,8 +83,8 @@ class CBERS4A_CloudDataset(Dataset):
 
     img = img.transpose((2, 0, 1))
 
-    img = img.astype('float16')
-    mask = mask.astype(float)
+    img = img.astype(np.float32)
+    mask = mask.astype(np.float32)
 
     img = torch.from_numpy(img)
     mask = torch.from_numpy(mask)
