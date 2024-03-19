@@ -2,11 +2,12 @@ import torch
 import pytorch_lightning as pl
 from model import UNet
 from dataset import UNetDataModule
-import config
+import config_servidor as config
 from callbacks import MyPrintingCallback, EarlyStopping
+from pytorch_lightning.callbacks import LearningRateMonitor, StochasticWeightAveraging
 from pytorch_lightning.loggers import TensorBoardLogger
 
-torch.set_float32_matmul_precision('medium')
+# torch.set_float32_matmul_precision('medium')
 
 if __name__ == '__main__':
     logger = TensorBoardLogger('tb_logs', name='unet_model_v0')
@@ -16,6 +17,7 @@ if __name__ == '__main__':
         learning_rate=config.LEARNING_RATE, 
         bilinear=True,
     )
+    model = model.float()
     dm = UNetDataModule(
         imgs_dir=config.IMGS_DIR, 
         masks_dir=config.MASKS_DIR, 
@@ -25,14 +27,25 @@ if __name__ == '__main__':
         num_workers=config.NUM_WORKERS,
     )
     trainer = pl.Trainer(
-        profiler='simple',
+        # profiler='simple',
         logger=logger,
-        accelerator=config.ACCELERATOR, 
-        devices=config.DEVICES,
+        strategy="ddp",
+        gpus=3,
+        precision=32,
         min_epochs=config.MIN_EPOCHS, 
         max_epochs=config.MAX_EPOCHS, 
-        precision=config.PRECISION,
-        callbacks=[MyPrintingCallback(), EarlyStopping(monitor='validation_loss')],
+        # precision=config.PRECISION,
+        callbacks=[
+            MyPrintingCallback(),
+            LearningRateMonitor(logging_interval='step'),
+            EarlyStopping(
+                monitor='validation_jaccard_index',
+                patience=10,
+                mode="max"
+            ),
+            StochasticWeightAveraging(swa_lrs=1e-3),
+        ],
+        sync_batchnorm=True,
     )
     trainer.fit(model, dm)
     trainer.validate(model, dm)
