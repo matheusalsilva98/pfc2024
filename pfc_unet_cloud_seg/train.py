@@ -2,7 +2,7 @@ import torch
 import pytorch_lightning as pl
 from model import UNet
 from dataset import UNetDataModule
-import config
+import config_servidor as config
 from callbacks import MyPrintingCallback, EarlyStopping
 from pytorch_lightning.callbacks import LearningRateMonitor, StochasticWeightAveraging
 from pytorch_lightning.loggers import TensorBoardLogger
