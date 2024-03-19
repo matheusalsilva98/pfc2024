@@ -6,7 +6,6 @@ import config_servidor as config
 from callbacks import MyPrintingCallback, EarlyStopping
 from pytorch_lightning.callbacks import LearningRateMonitor, StochasticWeightAveraging
 from pytorch_lightning.loggers import TensorBoardLogger
-from pytorch_segmentation_models_trainer.custom_callbacks.image_callbacks import ImageSegmentationResultCallback
 
 # torch.set_float32_matmul_precision('medium')
 
