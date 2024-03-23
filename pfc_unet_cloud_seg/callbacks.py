@@ -8,12 +8,10 @@ import matplotlib.pyplot as plt
 import torch
 
 class MyPrintingCallback(Callback):
-    def __init__(self, save_outputs=True):
+    def __init__(self, save_outputs=True, output_path=None):
         super().__init__()
         self.save_outputs = save_outputs
-
-    def prepare_mask_to_plot(self, mask):
-        return np.squeeze(mask).astype(np.uint8)
+        self.output_path = output_path
 
     def generate_visualization(fig_title=None, fig_size=None, font_size=16, **images):
         n = len(images)
@@ -26,6 +24,9 @@ class MyPrintingCallback(Callback):
             plt.xticks([])
             plt.yticks([])
             plt.title(" ".join(name.split("_")).title())
+            if image.shape == (4, 512, 512):
+                image.transpose([1,2,0])
+                image = image[:,:,:3]
             plt.imshow(image)
         fig.subplots_adjust(top=0.8)
         return axarr, fig
@@ -40,12 +41,12 @@ class MyPrintingCallback(Callback):
         image_name = Path(image_name).name.split(".")[0]
         report_path = os.path.join(
             self.output_path,
-            "report_image_{name}_epoch_{epoch}.png".format(
+            "report_image_{name}_epoch_{epoch}.jpg".format(
                 name=image_name,
                 epoch=current_epoch,
             ),
         )
-        plot.savefig(report_path, format="png", bbox_inches="tight")
+        plot.savefig(report_path, format="jpg", bbox_inches="tight")
         return report_path
 
     def on_sanity_check_end(self, trainer, pl_module):
@@ -58,29 +59,50 @@ class MyPrintingCallback(Callback):
     def on_validation_end(self, trainer, pl_module):
         if not self.save_outputs:
             return
-        #val_ds = pl_module.val_dataloader()
-        val_dl = trainer.datamodule.val_dataloader()
+        val_dl = trainer.datamodule.val_dataloader().dataset
         device = pl_module.device
         logger = trainer.logger
         
-        for i, batch in enumerate(val_dl):
-            image, mask = batch['image'], batch['mask']
-            image = image.to(device)
-            predicted_mask = pl_module(image)
-            predicted_mask = predicted_mask.to("cpu")
-            #plot_title = batch["path"][i]
-            plot_title = f'titulo{i}'
-            plt_result, fig = self.generate_visualization(
-                fig_title=None,
-                ground_truth_mask=self.prepare_mask_to_plot(mask.numpy()),
-                predicted_mask=self.prepare_mask_to_plot(predicted_mask.numpy()),
-            )
-            if self.save_outputs:
-                saved_image = self.save_plot_to_disk(
-                    plt_result, plot_title, trainer.current_epoch
-                )
-                self.log_data_to_tensorboard(
-                    saved_image, plot_title, logger, trainer.current_epoch
-                )
-            plt.close(fig)
+        for idx, batch in enumerate(val_dl):
+            if idx % 10 == 0:
+                images, masks = batch['image'], batch['mask']
+
+                images = images.unsqueeze(0)
+                images = images.to(device)
+
+                # mask plot preparation
+                predicted_mask = pl_module(images)
+                predicted_mask = predicted_mask.to("cpu")
+
+                masks = masks.numpy().astype(np.uint8)
+                masks = np.squeeze(masks)
+
+                # image plot preparation
+                images = images.to("cpu")
+                images = images.numpy()
+                images = np.squeeze(images)
+                images = (images / images.max()) * 255.
+                images = images.astype(np.uint8)
+                images = images.transpose((1,2,0))
+                images = images[:,:,:3]
+
+                # predicted mask plot preparation
+                predicted_mask = predicted_mask.numpy()
+                predicted_mask = np.squeeze(predicted_mask)
+                predicted_mask = np.argmax(predicted_mask, axis=0)
+                predicted_mask = predicted_mask.astype(np.uint8)
+                
+                plot_title = f'batch_{idx}'
+                plt_result, fig = self.generate_visualization(
+                    image=images,
+                    ground_truth_mask=masks,
+                    predicted_mask=predicted_mask)
+                if self.save_outputs:
+                    saved_image = self.save_plot_to_disk(
+                        fig, plot_title, trainer.current_epoch
+                    )
+                    self.log_data_to_tensorboard(
+                        saved_image, plot_title, logger, trainer.current_epoch
+                    )
+                plt.close(fig)
         return
