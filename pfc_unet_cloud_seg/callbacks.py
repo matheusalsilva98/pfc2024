@@ -1,15 +1,16 @@
 from pytorch_lightning.callbacks import EarlyStopping, Callback
 import numpy as np
 import os
-import Path
-import datatime
+from pathlib import Path
 import imageio
+from pytorch_lightning.utilities import rank_zero_only
 import matplotlib.pyplot as plt
 import torch
 
 class MyPrintingCallback(Callback):
-    def __init__(self):
+    def __init__(self, save_outputs=True):
         super().__init__()
+        self.save_outputs = save_outputs
 
     def prepare_mask_to_plot(self, mask):
         return np.squeeze(mask).astype(np.uint8)
@@ -39,9 +40,8 @@ class MyPrintingCallback(Callback):
         image_name = Path(image_name).name.split(".")[0]
         report_path = os.path.join(
             self.output_path,
-            "report_image_{name}_epoch_{epoch}_{date}.png".format(
+            "report_image_{name}_epoch_{epoch}.png".format(
                 name=image_name,
-                date=datetime.datetime.now().strftime("%Y%m%d-%H%M%S"),
                 epoch=current_epoch,
             ),
         )
@@ -58,23 +58,20 @@ class MyPrintingCallback(Callback):
     def on_validation_end(self, trainer, pl_module):
         if not self.save_outputs:
             return
-        val_ds = pl_module.val_dataloader().dataset
+        #val_ds = pl_module.val_dataloader()
+        val_dl = trainer.datamodule.val_dataloader()
         device = pl_module.device
         logger = trainer.logger
-        self.n_samples = (
-            pl_module.val_dataloader().batch_size
-            if self.n_samples is None
-            else self.n_samples
-        )
-        for i in range(self.n_samples):
-            image, mask = val_ds[i].values()
-            image = image.unsqueeze(0)
+        
+        for i, batch in enumerate(val_dl):
+            image, mask = batch['image'], batch['mask']
             image = image.to(device)
             predicted_mask = pl_module(image)
             predicted_mask = predicted_mask.to("cpu")
-            plot_title = val_ds.get_path(i)
-            plt_result, fig = generate_visualization(
-                fig_title=plot_title,
+            #plot_title = batch["path"][i]
+            plot_title = f'titulo{i}'
+            plt_result, fig = self.generate_visualization(
+                fig_title=None,
                 ground_truth_mask=self.prepare_mask_to_plot(mask.numpy()),
                 predicted_mask=self.prepare_mask_to_plot(predicted_mask.numpy()),
             )
