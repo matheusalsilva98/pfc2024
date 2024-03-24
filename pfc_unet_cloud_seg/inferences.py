@@ -60,6 +60,9 @@ def test_inference(dataloader=test_dataloader):
     test_dl = dataloader.dataset
     device = 'cuda' if torch.cuda.is_available() else 'cpu'
     
+    model = UNet.load_from_checkpoint(checkpoint_path="C:/Users/SE10/Desktop/PFC_reginaldo_dados/pfc2024-main/model_ckpts/epoch=25-step=1846.ckpt")
+    model = model.float()
+    model.eval()
     with torch.no_grad():
         for idx, batch in enumerate(test_dl):
             if idx % 10 == 0:
@@ -67,10 +70,6 @@ def test_inference(dataloader=test_dataloader):
 
                 images = images.unsqueeze(0)
                 images = images.to(device)
-
-                
-                model = UNet.load_from_checkpoint(checkpoint_path="C:/Users/SE10/Desktop/PFC_reginaldo_dados/pfc2024-main/model_ckpts/epoch=60-step=4331.ckpt")
-                model = model.float()
 
                 # mask plot preparation
                 predicted_mask = model(images)
