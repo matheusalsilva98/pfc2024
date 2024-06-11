@@ -1,8 +1,8 @@
 # Training hyperparameters
-NUM_CHANNELS = 4
+NUM_CHANNELS = 6
 NUM_CLASSES = 4
-VAL_PERCENT = 0.20
-TEST_PERCENT = 0.10
+#VAL_PERCENT = 0.20
+#TEST_PERCENT = 0.10
 BATCH_SIZE = 16
 NUM_WORKERS = 12
 LEARNING_RATE = 1e-3
@@ -11,8 +11,16 @@ DROP_LAST = True
 PREFETCH_FACTOR = 2 * BATCH_SIZE
 
 # Dataset
-IMGS_DIR = '/mnt/data/borba/pfc_2024/imagens_dataset_pfc/images_LOCAL_CONFIG'
-MASKS_DIR = '/mnt/data/borba/pfc_2024/imagens_dataset_pfc/masks_LOCAL_CONFIG'
+#IMGS_DIR = '/mnt/data/borba/pfc_2024/imagens_dataset_pfc/images_LOCAL_CONFIG'
+#MASKS_DIR = '/mnt/data/borba/pfc_2024/imagens_dataset_pfc/masks_LOCAL_CONFIG'
+
+# Training Dataset
+TRAIN_IMGS_DIR = ""
+TRAIN_MASKS_DIR = ""
+
+# Validation Dataset
+VALID_IMGS_DIR = ""
+VALID_MASKS_DIR = ""
 
 # Compute related
 ACCELERATOR = 'cuda'
