@@ -89,7 +89,7 @@ class CBERS4A_CloudDataset(Dataset):
     img = torch.from_numpy(img)
     mask = torch.from_numpy(mask)
 
-    img = nn.functional.normalize(img)
+    img[:4,:,:] = nn.functional.normalize(img[:4,:,:])
     return {
         'image': img,
         'mask': mask
