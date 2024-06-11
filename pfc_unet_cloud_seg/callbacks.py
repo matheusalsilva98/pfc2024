@@ -24,7 +24,7 @@ class MyPrintingCallback(Callback):
             plt.xticks([])
             plt.yticks([])
             plt.title(" ".join(name.split("_")).title())
-            if image.shape == (4, 512, 512):
+            if image.shape == (config.NUM_CHANNELS, config.PATCH_SIZE, config.PATCH_SIZE):
                 image.transpose([1,2,0])
                 image = image[:,:,:3]
             plt.imshow(image)
