@@ -59,6 +59,7 @@ class CBERS4A_CloudDataset(Dataset):
     
     self.img_dict = self.build_image_dict(self.imgs_dir)
     self.mask_dict = self.build_image_dict(self.masks_dir)
+    assert self.imgs_dir != self.masks_dir, "Image paths must be different!"
   
   def build_image_dict(self, root_dir):
     output_dict = defaultdict(list)
