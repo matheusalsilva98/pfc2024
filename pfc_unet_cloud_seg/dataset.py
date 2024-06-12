@@ -83,8 +83,8 @@ class CBERS4A_CloudDataset(Dataset):
     img = imageio.imread(img_file[0])
     mask = imageio.imread(mask_file[0])
 
-    assert img.shape == (512, 512, 6), f"Image with id {idx} with dims {img.shape}. Path to image: {img_file}"
-    assert mask.shape == (512, 512), f"Mask with id {idx} with dims {mask.shape}. Path to image: {mask_file}"
+    assert img.shape == (config.PATCH_SIZE, config.PATCH_SIZE, config.NUM_CHANNELS), f"Image with id {idx} with dims {img.shape} instead of {(config.PATCH_SIZE, config.PATCH_SIZE, config.NUM_CHANNELS)}. Path to image: {img_file}"
+    assert mask.shape == (config.PATCH_SIZE, config.PATCH_SIZE), f"Mask with id {idx} with dims {mask.shape} instead of {(config.PATCH_SIZE, config.PATCH_SIZE)}. Path to image: {mask_file}"
 
     img = img.transpose((2, 0, 1))
 
