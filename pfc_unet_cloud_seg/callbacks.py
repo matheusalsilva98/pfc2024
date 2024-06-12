@@ -3,6 +3,7 @@ import numpy as np
 import os
 from pathlib import Path
 import imageio
+import config
 from pytorch_lightning.utilities import rank_zero_only
 import matplotlib.pyplot as plt
 import torch
@@ -24,7 +25,7 @@ class MyPrintingCallback(Callback):
             plt.xticks([])
             plt.yticks([])
             plt.title(" ".join(name.split("_")).title())
-            if image.shape == (4, 512, 512):
+            if image.shape == (config.NUM_CHANNELS, config.PATCH_SIZE, config.PATCH_SIZE):
                 image.transpose([1,2,0])
                 image = image[:,:,:3]
             plt.imshow(image)
@@ -38,7 +39,7 @@ class MyPrintingCallback(Callback):
         logger.experiment.add_image(image_path, data, current_epoch)
 
     def save_plot_to_disk(self, plot, image_name, current_epoch):
-        image_name = Path(image_name).name.split(".")[0]
+        image_name = str(Path(image_name).name.split(".")[0])
         report_path = os.path.join(
             self.output_path,
             "report_image_{name}_epoch_{epoch}.jpg".format(
