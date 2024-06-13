@@ -6,6 +6,7 @@ import pytorch_lightning as pl
 from torch import optim
 from torchmetrics.classification import MulticlassJaccardIndex
 import torchvision
+from torchmetrics.functional import dice
 
 class UNet(pl.LightningModule):
     def __init__(self, n_channels=4, n_classes=4, learning_rate=1e-3, bilinear=True):
@@ -54,6 +55,7 @@ class UNet(pl.LightningModule):
             on_step=False, 
             on_epoch=True, 
             prog_bar=True,
+            sync_dist=True,
         )
 
         tensorboard_logs = {'jaccard_index': {'train': jaccard_index }, 'loss':{'train': loss }}
@@ -98,8 +100,8 @@ class UNet(pl.LightningModule):
         y = y.long()
         x = x.to(torch.float32)
         y_pred = self.forward(x)
-        criterion = nn.CrossEntropyLoss()
-        loss = criterion(y_pred, y)
+        criterion1 = nn.CrossEntropyLoss()
+        loss = 0.5 * criterion1(y_pred, y) + 0.5 * dice(y_pred, y, num_classes=self.n_classes)
 
         return loss, y_pred, y
     
