@@ -25,6 +25,7 @@ if __name__ == '__main__':
         valid_masks_dir=config.VALID_MASKS_DIR,
         batch_size=config.BATCH_SIZE,
         num_workers=config.NUM_WORKERS,
+        use_augmentations=config.USE_AUGMENTATIONS,
     )
     trainer = pl.Trainer(
         # profiler='simple',

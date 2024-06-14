@@ -14,6 +14,7 @@ class MyPrintingCallback(Callback):
         self.save_outputs = save_outputs
         self.output_path = output_path
 
+    @staticmethod
     def generate_visualization(fig_title=None, fig_size=None, font_size=16, **images):
         n = len(images)
         fig_size = (16, 5) if fig_size is None else fig_size
@@ -66,26 +67,26 @@ class MyPrintingCallback(Callback):
         
         for idx, batch in enumerate(val_dl):
             if idx % 10 == 0:
-                images, masks = batch['image'], batch['mask']
+                image, mask = batch['image'], batch['mask']
 
-                images = images.unsqueeze(0)
-                images = images.to(device)
+                image = image.unsqueeze(0)
+                image = image.to(device)
 
                 # mask plot preparation
-                predicted_mask = pl_module(images)
+                predicted_mask = pl_module(image)
                 predicted_mask = predicted_mask.to("cpu")
 
-                masks = masks.numpy().astype(np.uint8)
-                masks = np.squeeze(masks)
+                mask = mask.numpy().astype(np.uint8)
+                mask = np.squeeze(mask)
 
                 # image plot preparation
-                images = images.to("cpu")
-                images = images.numpy()
-                images = np.squeeze(images)
-                images = (images / images.max()) * 255.
-                images = images.astype(np.uint8)
-                images = images.transpose((1,2,0))
-                images = images[:,:,:3]
+                image = image.to("cpu")
+                image = image.numpy()
+                image = np.squeeze(image)
+                image = image.transpose((1,2,0))
+                image = image[:,:,:3]
+                image = (image / image.max()) * 255.
+                image = image.astype(np.uint8)
 
                 # predicted mask plot preparation
                 predicted_mask = predicted_mask.numpy()
@@ -95,9 +96,13 @@ class MyPrintingCallback(Callback):
                 
                 plot_title = f'batch_{idx}'
                 plt_result, fig = self.generate_visualization(
-                    image=images,
-                    ground_truth_mask=masks,
-                    predicted_mask=predicted_mask)
+                    fig_title=plot_title,
+                    fig_size=None,
+                    font_size=16,
+                    image=image,
+                    ground_truth_mask=mask,
+                    predicted_mask=predicted_mask,
+                )
                 if self.save_outputs:
                     saved_image = self.save_plot_to_disk(
                         fig, plot_title, trainer.current_epoch
