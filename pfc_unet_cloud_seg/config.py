@@ -9,8 +9,7 @@ NUM_WORKERS = 12
 LEARNING_RATE = 1e-3
 PIN_MEMORY = True
 DROP_LAST = True
-PREFETCH_FACTOR = 2 * BATCH_SIZE
-
+PREFETCH_FACTOR = 10
 DATASET_ROOT_DIR = "/mnt/data/borba/pfc_2024/dataset_final"
 # Training Dataset
 # TRAIN_IMGS_DIR = "/mnt/data/borba/pfc_2024/imagens_dataset_pfc/dataset6bandas_treino_valid/imgs_treinamento/images6bands_LOCAL_CONFIG"
