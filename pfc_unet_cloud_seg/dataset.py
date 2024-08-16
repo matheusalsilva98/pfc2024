@@ -15,19 +15,16 @@ from collections import defaultdict
 import albumentations as A
 
 class UNetDataModule(pl.LightningDataModule):
-    def __init__(self, train_imgs_dir, train_masks_dir, valid_imgs_dir, valid_masks_dir, batch_size, num_workers, use_augmentations=False):
+    def __init__(self, root_dir, batch_size, num_workers, use_augmentations=False):
         super().__init__()
-        self.train_imgs_dir = train_imgs_dir
-        self.train_masks_dir = train_masks_dir
-        self.valid_imgs_dir = valid_imgs_dir
-        self.valid_masks_dir = valid_masks_dir
+        self.root_dir = root_dir
         self.batch_size = batch_size
         self.num_workers = num_workers
         self.use_augmentations = use_augmentations
 
     def setup(self, stage):
-        self.train_ds = CBERS4A_CloudDataset(root_dir=config.DATASET_ROOT_DIR, train=True, use_augmentations=self.use_augmentations)
-        self.valid_ds = CBERS4A_CloudDataset(root_dir=config.DATASET_ROOT_DIR, train=False)
+        self.train_ds = CBERS4A_CloudDataset(root_dir=self.root_dir, train=True, use_augmentations=self.use_augmentations)
+        self.valid_ds = CBERS4A_CloudDataset(root_dir=self.root_dir, train=False)
 
     def train_dataloader(self):
         return DataLoader(

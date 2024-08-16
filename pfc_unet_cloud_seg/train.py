@@ -19,10 +19,7 @@ if __name__ == '__main__':
     )
     model = model.float()
     dm = UNetDataModule(
-        train_imgs_dir=config.TRAIN_IMGS_DIR,
-        train_masks_dir=config.TRAIN_MASKS_DIR,
-        valid_imgs_dir=config.VALID_IMGS_DIR,
-        valid_masks_dir=config.VALID_MASKS_DIR,
+        root_dir=config.DATASET_ROOT_DIR,
         batch_size=config.BATCH_SIZE,
         num_workers=config.NUM_WORKERS,
         use_augmentations=config.USE_AUGMENTATIONS,
