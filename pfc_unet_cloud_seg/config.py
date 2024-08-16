@@ -11,13 +11,14 @@ PIN_MEMORY = True
 DROP_LAST = True
 PREFETCH_FACTOR = 2 * BATCH_SIZE
 
+DATASET_ROOT_DIR = "/mnt/data/borba/pfc_2024/dataset_final"
 # Training Dataset
-TRAIN_IMGS_DIR = "/mnt/data/borba/pfc_2024/imagens_dataset_pfc/dataset6bandas_treino_valid/imgs_treinamento/images6bands_LOCAL_CONFIG"
-TRAIN_MASKS_DIR = "/mnt/data/borba/pfc_2024/imagens_dataset_pfc/dataset6bandas_treino_valid/imgs_treinamento/masks6bands_LOCAL_CONFIG"
+# TRAIN_IMGS_DIR = "/mnt/data/borba/pfc_2024/imagens_dataset_pfc/dataset6bandas_treino_valid/imgs_treinamento/images6bands_LOCAL_CONFIG"
+# TRAIN_MASKS_DIR = "/mnt/data/borba/pfc_2024/imagens_dataset_pfc/dataset6bandas_treino_valid/imgs_treinamento/masks6bands_LOCAL_CONFIG"
 
-# Validation Dataset
-VALID_IMGS_DIR = "/mnt/data/borba/pfc_2024/imagens_dataset_pfc/dataset6bandas_treino_valid/imgs_validacao/images6bands_LOCAL_CONFIG"
-VALID_MASKS_DIR = "/mnt/data/borba/pfc_2024/imagens_dataset_pfc/dataset6bandas_treino_valid/imgs_validacao/masks6bands_LOCAL_CONFIG"
+# # Validation Dataset
+# VALID_IMGS_DIR = "/mnt/data/borba/pfc_2024/imagens_dataset_pfc/dataset6bandas_treino_valid/imgs_validacao/images6bands_LOCAL_CONFIG"
+# VALID_MASKS_DIR = "/mnt/data/borba/pfc_2024/imagens_dataset_pfc/dataset6bandas_treino_valid/imgs_validacao/masks6bands_LOCAL_CONFIG"
 
 LOG_OUTPUT_PATH = "/mnt/data/borba/pfc_2024/"
 

@@ -1,3 +1,4 @@
+from typing import Dict, List, Tuple
 import pytorch_lightning as pl
 import torch
 import torch.nn as nn
@@ -25,8 +26,8 @@ class UNetDataModule(pl.LightningDataModule):
         self.use_augmentations = use_augmentations
 
     def setup(self, stage):
-        self.train_ds = CBERS4A_CloudDataset(imgs_dir=self.train_imgs_dir, masks_dir=self.train_masks_dir, use_augmentations=self.use_augmentations)
-        self.valid_ds = CBERS4A_CloudDataset(imgs_dir=self.valid_imgs_dir, masks_dir=self.valid_masks_dir)
+        self.train_ds = CBERS4A_CloudDataset(root_dir=config.DATASET_ROOT_DIR, train=True, use_augmentations=self.use_augmentations)
+        self.valid_ds = CBERS4A_CloudDataset(root_dir=config.DATASET_ROOT_DIR, train=False)
 
     def train_dataloader(self):
         return DataLoader(
@@ -52,16 +53,11 @@ class UNetDataModule(pl.LightningDataModule):
         )
 
 class CBERS4A_CloudDataset(Dataset):
-  def __init__(self, imgs_dir, masks_dir, use_augmentations=False):
-    self.imgs_dir = imgs_dir
-    self.masks_dir = masks_dir
+  def __init__(self, root_dir, train=True, use_augmentations=False):
+    self.img_dict, self.mask_dict = self.build_image_dict(root_dir, dataset_type_key="treino" if train else "valid")
 
-    self.ids = [splitext(file)[0].split('_')[-1] for file in listdir(imgs_dir)
-                if not file.startswith('.')]
+    self.ids = list(self.img_dict.keys())
     
-    self.img_dict = self.build_image_dict(self.imgs_dir)
-    self.mask_dict = self.build_image_dict(self.masks_dir)
-    assert self.imgs_dir != self.masks_dir, "Image paths must be different!"
     self.transform = A.Compose(
         [
             A.Flip(p=0.5),
@@ -69,12 +65,27 @@ class CBERS4A_CloudDataset(Dataset):
         ]
     ) if use_augmentations else None
   
-  def build_image_dict(self, root_dir):
-    output_dict = defaultdict(list)
+  def build_image_dict(self, root_dir: str, dataset_type_key: str) -> Tuple[Dict[str, List[Path]], Dict[str, List[Path]]]:
+    """_summary_
+
+    Args:
+        root_dir (str): Diretório raíz
+        dataset_type_key (str): treino ou valid
+        as imagens estão nos diretórios imgs e as máscaras nos diretórios masks
+    Returns:
+        Tuple[Dict[str, List[Path]], Dict[str, List[Path]]]: retorna os dicionários de imagens e de máscaras
+    """
+    image_output_dict = defaultdict(list)
+    mask_output_dict = defaultdict(list)
     for p in Path(root_dir).rglob("*.tif"):
-        key = str(p.stem).split("_")[-1]
-        output_dict[key].append(str(p))
-    return output_dict
+        key = str(p.stem)
+        if dataset_type_key not in str(p):
+            continue
+        if "imgs" in str(p):
+            image_output_dict[key].append(str(p))
+        else:
+            mask_output_dict[key].append(str(p))
+    return image_output_dict, mask_output_dict
 
   def __len__(self):
     return len(self.ids)
