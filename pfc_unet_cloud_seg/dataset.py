@@ -81,7 +81,7 @@ class CBERS4A_CloudDataset(Dataset):
         if "imgs" in str(p):
             image_output_dict[key].append(str(p))
         else:
-            mask_output_dict[key].append(str(p))
+            mask_output_dict[key.replace("_mask_", "_image_")].append(str(p))
     return image_output_dict, mask_output_dict
 
   def __len__(self):
