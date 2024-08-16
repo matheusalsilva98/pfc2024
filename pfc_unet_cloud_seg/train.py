@@ -45,7 +45,7 @@ if __name__ == '__main__':
                 patience=10,
                 mode="max"
             ),
-            StochasticWeightAveraging(swa_lrs=1e-3),
+            StochasticWeightAveraging(swa_lrs=1e-3, swa_epoch_start=0.2),
         ],
         sync_batchnorm=True,
     )
