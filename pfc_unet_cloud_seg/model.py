@@ -101,7 +101,7 @@ class UNet(pl.LightningModule):
         y = y.long()
         x = x.to(torch.float32)
         y_pred = self.forward(x)
-        #criterion1 = nn.CrossEntropyLoss()
+        criterion1 = nn.CrossEntropyLoss()
         loss = 0.5 * criterion1(y_pred, y) + 0.5 * dice(y_pred, y, num_classes=self.n_classes)
         #criterion = L.JointLoss(L.FocalLoss(), L.LovaszLoss(), 1.0, 0.5)
         #loss = criterion(y_pred, y)
