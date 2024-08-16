@@ -53,7 +53,7 @@ class CBERS4A_CloudDataset(Dataset):
   def __init__(self, root_dir, train=True, use_augmentations=False):
     self.img_dict, self.mask_dict = self.build_image_dict(root_dir, dataset_type_key="treino" if train else "valid")
 
-    self.ids = list(self.img_dict.keys())
+    self.ids = [i for i in self.img_dict.keys() if i in self.mask_dict]
     
     self.transform = A.Compose(
         [
