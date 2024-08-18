@@ -4,7 +4,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 import pytorch_lightning as pl
 from torch import optim
-from torchmetrics.classification import MulticlassJaccardIndex
+from torchmetrics.classification import MulticlassJaccardIndex, MulticlassAccuracy, MulticlassPrecision, MulticlassF1Score, MulticlassRecall
 import torchvision
 from torchmetrics.functional import dice
 from pytorch_toolbelt import losses as L
@@ -30,6 +30,10 @@ class UNet(pl.LightningModule):
         self.outc = OutConv(64, n_classes)
 
         self.jaccard_index = MulticlassJaccardIndex(num_classes=n_classes)
+        self.accuracy = MulticlassAccuracy(num_classes=n_classes)
+        self.precision = MulticlassPrecision(num_classes=n_classes)
+        self.f1score = MulticlassF1Score(num_classes=n_classes)
+        self.recall = MulticlassRecall(num_classes=n_classes)
 
     def forward(self, x):
         x1 = self.inc(x)
@@ -48,10 +52,18 @@ class UNet(pl.LightningModule):
         x, y = batch['image'], batch['mask']
         loss, y_pred, y = self._common_step(batch, batch_idx)
         jaccard_index = self.jaccard_index(y_pred, y)
+        accuracy = self.accuracy(y_pred, y)
+        precision = self.precision(y_pred, y)
+        f1score = self.f1score(y_pred, y)
+        recall = self.recall(y_pred, y)
         self.log_dict(
             {
                 'train_loss': loss, 
                 'train_jaccard_index': jaccard_index
+                'train_accuracy': accuracy,
+                'train_precision': precision,
+                'train_f1score': f1score,
+                'train_recall': recall
             },
             on_step=False, 
             on_epoch=True, 
@@ -59,7 +71,9 @@ class UNet(pl.LightningModule):
             sync_dist=True,
         )
 
-        tensorboard_logs = {'jaccard_index': {'train': jaccard_index }, 'loss':{'train': loss }}
+        tensorboard_logs = {'jaccard_index': {'train': jaccard_index },'accuracy': {'train': accuracy },
+                            'precision': {'train': precision },'f1score': {'train': f1score },
+                            'recall': {'train': recall }, 'loss':{'train': loss }}
 
         return {'loss': loss, 'y_pred': y_pred, 'y': y, 'log': tensorboard_logs}
 
@@ -67,17 +81,27 @@ class UNet(pl.LightningModule):
         x, y = batch['image'], batch['mask']
         loss, y_pred, y = self._common_step(batch, batch_idx)
         jaccard_index = self.jaccard_index(y_pred, y)
+        accuracy = self.accuracy(y_pred, y)
+        precision = self.precision(y_pred, y)
+        f1score = self.f1score(y_pred, y)
+        recall = self.recall(y_pred, y)
         self.log_dict(
             {
                 'validation_loss': loss, 
                 'validation_jaccard_index': jaccard_index
+                'validation_accuracy': accuracy,
+                'validation_precision': precision,
+                'validation_f1score': f1score,
+                'validation_recall': recall
             },
             on_step=False, 
             on_epoch=True, 
             prog_bar=True,
         )
 
-        tensorboard_logs = {'jaccard_index': {'train': jaccard_index }, 'loss':{'train': loss }}
+        tensorboard_logs = {'jaccard_index': {'train': jaccard_index },'accuracy': {'train': accuracy },
+                            'precision': {'train': precision },'f1score': {'train': f1score },
+                            'recall': {'train': recall }, 'loss':{'train': loss }}
 
         return {'loss': loss, 'log': tensorboard_logs} 
     
