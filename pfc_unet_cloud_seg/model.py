@@ -59,7 +59,7 @@ class UNet(pl.LightningModule):
         self.log_dict(
             {
                 'train_loss': loss, 
-                'train_jaccard_index': jaccard_index
+                'train_jaccard_index': jaccard_index,
                 'train_accuracy': accuracy,
                 'train_precision': precision,
                 'train_f1score': f1score,
@@ -88,7 +88,7 @@ class UNet(pl.LightningModule):
         self.log_dict(
             {
                 'validation_loss': loss, 
-                'validation_jaccard_index': jaccard_index
+                'validation_jaccard_index': jaccard_index,
                 'validation_accuracy': accuracy,
                 'validation_precision': precision,
                 'validation_f1score': f1score,
