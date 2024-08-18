@@ -7,7 +7,6 @@ from torch import optim
 from torchmetrics.classification import MulticlassJaccardIndex, MulticlassAccuracy, MulticlassPrecision, MulticlassF1Score, MulticlassRecall
 import torchvision
 from torchmetrics.functional import dice
-from pytorch_toolbelt import losses as L
 
 class UNet(pl.LightningModule):
     def __init__(self, n_channels=4, n_classes=4, learning_rate=1e-3, bilinear=True):
@@ -35,6 +34,12 @@ class UNet(pl.LightningModule):
         self.f1score = MulticlassF1Score(num_classes=n_classes)
         self.recall = MulticlassRecall(num_classes=n_classes)
 
+        self.background_jaccard_index = MulticlassJaccardIndex(num_classes=n_classes, average=None)[0]
+        self.background_accuracy = MulticlassAccuracy(num_classes=n_classes, average=None)[0]
+        self.background_precision = MulticlassPrecision(num_classes=n_classes, average=None)[0]
+        self.background_f1score = MulticlassF1Score(num_classes=n_classes, average=None)[0]
+        self.background_recall = MulticlassRecall(num_classes=n_classes, average=None)[0]
+        
     def forward(self, x):
         x1 = self.inc(x)
         x2 = self.down1(x1)
@@ -51,19 +56,32 @@ class UNet(pl.LightningModule):
     def training_step(self, batch, batch_idx):
         x, y = batch['image'], batch['mask']
         loss, y_pred, y = self._common_step(batch, batch_idx)
+        
         jaccard_index = self.jaccard_index(y_pred, y)
         accuracy = self.accuracy(y_pred, y)
         precision = self.precision(y_pred, y)
         f1score = self.f1score(y_pred, y)
         recall = self.recall(y_pred, y)
+
+        background_jaccard_index = self.background_jaccard_index(y_pred, y)
+        background_accuracy = self.background_accuracy(y_pred, y)
+        background_precision = self.background_precision(y_pred, y)
+        background_f1score = self.background_f1score(y_pred, y)
+        background_recall = self.background_recall(y_pred, y)
+        
         self.log_dict(
             {
                 'train_loss': loss, 
                 'train_jaccard_index': jaccard_index,
+                'train_background_jaccard_index': background_jaccard_index,
                 'train_accuracy': accuracy,
+                'train_background_accuracy': background_accuracy,                
                 'train_precision': precision,
+                'train_background_precision': background_precision,                
                 'train_f1score': f1score,
-                'train_recall': recall
+                'train_background_f1score': background_f1score,                
+                'train_recall': recall,
+                'train_background_recall': background_recall
             },
             on_step=False, 
             on_epoch=True, 
@@ -80,19 +98,32 @@ class UNet(pl.LightningModule):
     def validation_step(self, batch, batch_idx):
         x, y = batch['image'], batch['mask']
         loss, y_pred, y = self._common_step(batch, batch_idx)
+        
         jaccard_index = self.jaccard_index(y_pred, y)
         accuracy = self.accuracy(y_pred, y)
         precision = self.precision(y_pred, y)
         f1score = self.f1score(y_pred, y)
         recall = self.recall(y_pred, y)
+
+        background_jaccard_index = self.background_jaccard_index(y_pred, y)
+        background_accuracy = self.background_accuracy(y_pred, y)
+        background_precision = self.background_precision(y_pred, y)
+        background_f1score = self.background_f1score(y_pred, y)
+        background_recall = self.background_recall(y_pred, y)
+        
         self.log_dict(
             {
                 'validation_loss': loss, 
                 'validation_jaccard_index': jaccard_index,
+                'validation_background_jaccard_index': background_jaccard_index,
                 'validation_accuracy': accuracy,
+                'validation_background_accuracy': background_accuracy,                
                 'validation_precision': precision,
+                'validation_background_precision': background_precision,                
                 'validation_f1score': f1score,
-                'validation_recall': recall
+                'validation_background_f1score': background_f1score,                
+                'validation_recall': recall,
+                'validation_background_recall': background_recall
             },
             on_step=False, 
             on_epoch=True, 
