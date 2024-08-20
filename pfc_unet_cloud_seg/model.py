@@ -48,6 +48,24 @@ class UNet(pl.LightningModule):
         self.background_precision = MulticlassPrecision(num_classes=n_classes, average=None)[0]
         self.background_f1score = MulticlassF1Score(num_classes=n_classes, average=None)[0]
         self.background_recall = MulticlassRecall(num_classes=n_classes, average=None)[0]
+
+        self.nuvem_densa_jaccard_index = MulticlassJaccardIndex(num_classes=n_classes, average=None)[1]
+        self.nuvem_densa_accuracy = MulticlassAccuracy(num_classes=n_classes, average=None)[1]
+        self.nuvem_densa_precision = MulticlassPrecision(num_classes=n_classes, average=None)[1]
+        self.nuvem_densa_f1score = MulticlassF1Score(num_classes=n_classes, average=None)[1]
+        self.nuvem_densa_recall = MulticlassRecall(num_classes=n_classes, average=None)[1]
+
+        self.nuvem_fina_jaccard_index = MulticlassJaccardIndex(num_classes=n_classes, average=None)[2]
+        self.nuvem_fina_accuracy = MulticlassAccuracy(num_classes=n_classes, average=None)[2]
+        self.nuvem_fina_precision = MulticlassPrecision(num_classes=n_classes, average=None)[2]
+        self.nuvem_fina_f1score = MulticlassF1Score(num_classes=n_classes, average=None)[2]
+        self.nuvem_fina_recall = MulticlassRecall(num_classes=n_classes, average=None)[2]
+
+        self.sombra_jaccard_index = MulticlassJaccardIndex(num_classes=n_classes, average=None)[3]
+        self.sombra_accuracy = MulticlassAccuracy(num_classes=n_classes, average=None)[3]
+        self.sombra_precision = MulticlassPrecision(num_classes=n_classes, average=None)[3]
+        self.sombra_f1score = MulticlassF1Score(num_classes=n_classes, average=None)[3]
+        self.sombra_recall = MulticlassRecall(num_classes=n_classes, average=None)[3]
         
     def forward(self, x):
         x1 = self.inc(x)
@@ -77,20 +95,59 @@ class UNet(pl.LightningModule):
         background_precision = self.background_precision(y_pred, y)
         background_f1score = self.background_f1score(y_pred, y)
         background_recall = self.background_recall(y_pred, y)
+
+        nuvem_densa_jaccard_index = self.nuvem_densa_jaccard_index(y_pred, y)
+        nuvem_densa_accuracy = self.nuvem_densa_accuracy(y_pred, y)
+        nuvem_densa_precision = self.nuvem_densa_precision(y_pred, y)
+        nuvem_densa_f1score = self.nuvem_densa_f1score(y_pred, y)
+        nuvem_densa_recall = self.nuvem_densa_recall(y_pred, y)
+
+        nuvem_fina_jaccard_index = self.nuvem_fina_jaccard_index(y_pred, y)
+        nuvem_fina_accuracy = self.nuvem_fina_accuracy(y_pred, y)
+        nuvem_fina_precision = self.nuvem_fina_precision(y_pred, y)
+        nuvem_fina_f1score = self.nuvem_fina_f1score(y_pred, y)
+        nuvem_fina_recall = self.nuvem_fina_recall(y_pred, y)
+
+        sombra_jaccard_index = self.sombra_jaccard_index(y_pred, y)
+        sombra_accuracy = self.sombra_accuracy(y_pred, y)
+        sombra_precision = self.sombra_precision(y_pred, y)
+        sombra_f1score = self.sombra_f1score(y_pred, y)
+        sombra_recall = self.sombra_recall(y_pred, y)
         
         self.log_dict(
             {
-                'train_loss': loss, 
+                'train': loss,
                 'train_jaccard_index': jaccard_index,
-                'train_background_jaccard_index': background_jaccard_index,
                 'train_accuracy': accuracy,
-                'train_background_accuracy': background_accuracy,                
-                'train_precision': precision,
-                'train_background_precision': background_precision,                
+                'train_precision': precizion,
                 'train_f1score': f1score,
-                'train_background_f1score': background_f1score,                
                 'train_recall': recall,
-                'train_background_recall': background_recall
+                'train_background_jaccard_index': background_jaccard_index,
+                'train_background_accuracy': background_accuracy,
+                'train_background_precision': background_precision,
+                'train_background_f1score': background_f1score,
+                'train_background_recall': background_recall,
+                'train_nuvem_densa_jaccard_index': nuvem_densa_jaccard_index,
+                'train_nuvem_densa_accuracy': nuvem_densa_accuracy,
+                'train_nuvem_densa_precision': nuvem_densa_precision,
+                'train_nuvem_densa_f1score': nuvem_densa_f1score,
+                'train_nuvem_densa_recall': nuvem_densa_recall,
+                'train_nuvem_fina_jaccard_index': nuvem_fina_jaccard_index,
+                'train_nuvem_fina_accuracy': nuvem_fina_accuracy,
+                'train_nuvem_fina_precision': nuvem_fina_precision,
+                'train_nuvem_fina_f1score': nuvem_fina_f1score,
+                'train_nuvem_fina_recall': nuvem_fina_recall,
+                'train_sombra_jaccard_index': sombra_jaccard_index,
+                'train_sombra_accuracy': sombra_accuracy,
+                'train_sombra_precision': sombra_precision,
+                'train_sombra_f1score': sombra_f1score,
+                'train_sombra_recall': sombra_recall,
+                'comparativo_train_jaccard_index': {'train_jaccard_index': jaccard_index, 'train_background_jaccard_index': background_jaccard_index},
+                'comparativo_train_accuracy': {'train_accuracy': accuracy, 'train_background_accuracy': background_accuracy},
+                'comparativo_train_precision': {'train_precision': precizion, 'train_background_precision': background_precision},
+                'comparativo_train_f1score': {'train_f1score': f1score, 'train_background_f1score': background_f1score},
+                'comparativo_train_recall': {'train_recall': recall, 'train_background_recall': background_recall},
+
             },
             on_step=False, 
             on_epoch=True, 
@@ -119,20 +176,59 @@ class UNet(pl.LightningModule):
         background_precision = self.background_precision(y_pred, y)
         background_f1score = self.background_f1score(y_pred, y)
         background_recall = self.background_recall(y_pred, y)
+
+        nuvem_densa_jaccard_index = self.nuvem_densa_jaccard_index(y_pred, y)
+        nuvem_densa_accuracy = self.nuvem_densa_accuracy(y_pred, y)
+        nuvem_densa_precision = self.nuvem_densa_precision(y_pred, y)
+        nuvem_densa_f1score = self.nuvem_densa_f1score(y_pred, y)
+        nuvem_densa_recall = self.nuvem_densa_recall(y_pred, y)
+
+        nuvem_fina_jaccard_index = self.nuvem_fina_jaccard_index(y_pred, y)
+        nuvem_fina_accuracy = self.nuvem_fina_accuracy(y_pred, y)
+        nuvem_fina_precision = self.nuvem_fina_precision(y_pred, y)
+        nuvem_fina_f1score = self.nuvem_fina_f1score(y_pred, y)
+        nuvem_fina_recall = self.nuvem_fina_recall(y_pred, y)
+
+        sombra_jaccard_index = self.sombra_jaccard_index(y_pred, y)
+        sombra_accuracy = self.sombra_accuracy(y_pred, y)
+        sombra_precision = self.sombra_precision(y_pred, y)
+        sombra_f1score = self.sombra_f1score(y_pred, y)
+        sombra_recall = self.sombra_recall(y_pred, y)
         
         self.log_dict(
             {
-                'validation_loss': loss, 
-                'validation_jaccard_index': jaccard_index,
-                'validation_background_jaccard_index': background_jaccard_index,
-                'validation_accuracy': accuracy,
-                'validation_background_accuracy': background_accuracy,                
-                'validation_precision': precision,
-                'validation_background_precision': background_precision,                
-                'validation_f1score': f1score,
-                'validation_background_f1score': background_f1score,                
-                'validation_recall': recall,
-                'validation_background_recall': background_recall
+                'val': loss,
+                'val_jaccard_index': jaccard_index,
+                'val_accuracy': accuracy,
+                'val_precision': precizion,
+                'val_f1score': f1score,
+                'val_recall': recall,
+                'val_background_jaccard_index': background_jaccard_index,
+                'val_background_accuracy': background_accuracy,
+                'val_background_precision': background_precision,
+                'val_background_f1score': background_f1score,
+                'val_background_recall': background_recall,
+                'val_nuvem_densa_jaccard_index': nuvem_densa_jaccard_index,
+                'val_nuvem_densa_accuracy': nuvem_densa_accuracy,
+                'val_nuvem_densa_precision': nuvem_densa_precision,
+                'val_nuvem_densa_f1score': nuvem_densa_f1score,
+                'val_nuvem_densa_recall': nuvem_densa_recall,
+                'val_nuvem_fina_jaccard_index': nuvem_fina_jaccard_index,
+                'val_nuvem_fina_accuracy': nuvem_fina_accuracy,
+                'val_nuvem_fina_precision': nuvem_fina_precision,
+                'val_nuvem_fina_f1score': nuvem_fina_f1score,
+                'val_nuvem_fina_recall': nuvem_fina_recall,
+                'val_sombra_jaccard_index': sombra_jaccard_index,
+                'val_sombra_accuracy': sombra_accuracy,
+                'val_sombra_precision': sombra_precision,
+                'val_sombra_f1score': sombra_f1score,
+                'val_sombra_recall': sombra_recall,
+                'comparativo_val_jaccard_index': {'val_jaccard_index': jaccard_index, 'val_background_jaccard_index': background_jaccard_index},
+                'comparativo_val_accuracy': {'val_accuracy': accuracy, 'val_background_accuracy': background_accuracy},
+                'comparativo_val_precision': {'val_precision': precizion, 'val_background_precision': background_precision},
+                'comparativo_val_f1score': {'val_f1score': f1score, 'val_background_f1score': background_f1score},
+                'comparativo_val_recall': {'val_recall': recall, 'val_background_recall': background_recall},
+
             },
             on_step=False, 
             on_epoch=True, 
