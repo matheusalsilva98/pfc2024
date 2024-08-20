@@ -66,7 +66,7 @@ class MyPrintingCallback(Callback):
         logger = trainer.logger
         
         for idx, batch in enumerate(val_dl):
-            if idx % 10 == 0:
+            if idx == 0:
                 image, mask = batch['image'], batch['mask']
 
                 image = image.unsqueeze(0)
