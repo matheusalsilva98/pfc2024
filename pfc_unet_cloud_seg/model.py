@@ -8,6 +8,13 @@ from torchmetrics.classification import MulticlassJaccardIndex, MulticlassAccura
 import torchvision
 from torchmetrics.functional import dice
 
+class IntHandler:
+    def legend_artist(self, legend, orig_handle, fontsize, handlebox):
+        x0, y0 = handlebox.xdescent, handlebox.ydescent
+        text = plt.matplotlib.text.Text(x0, y0, str(orig_handle))
+        handlebox.add_artist(text)
+        return text
+
 class UNet(pl.LightningModule):
     def __init__(self, n_channels=4, n_classes=4, learning_rate=1e-3, bilinear=True):
         super(UNet, self).__init__()
@@ -15,6 +22,8 @@ class UNet(pl.LightningModule):
         self.n_classes = n_classes
         self.lr = learning_rate
         self.bilinear = bilinear
+
+        self._label_ind_by_names = {'background': 0, 'nuvem_densa': 1, 'nuvem_fina': 2, 'sombra': 3}
 
         self.inc = DoubleConv(n_channels, 64)
         self.down1 = Down(64, 128)
@@ -128,6 +137,7 @@ class UNet(pl.LightningModule):
             on_step=False, 
             on_epoch=True, 
             prog_bar=True,
+            sync_dist=True,
         )
 
         tensorboard_logs = {'jaccard_index': {'train': jaccard_index },'accuracy': {'train': accuracy },
@@ -174,6 +184,44 @@ class UNet(pl.LightningModule):
         optimizer = optim.Adam(self.parameters(), lr=self.lr)
         scheduler = optim.lr_scheduler.ReduceLROnPlateau(optimizer, 'min', patience=2)
         return {"optimizer": optimizer, "lr_scheduler": scheduler, "monitor": "validation_loss"}
+
+    def validation_epoch_end(self, outs):
+            # see https://github.com/Lightning-AI/metrics/blob/ff61c482e5157b43e647565fa0020a4ead6e9d61/docs/source/pages/lightning.rst
+            # each forward pass, thus leading to wrong accumulation. In practice do the following:
+            tb = self.logger.experiment  # noqa
+
+            outputs = torch.cat([tmp['y_pred'] for tmp in outs])
+            labels = torch.cat([tmp['y'] for tmp in outs])
+
+            confusion = torchmetrics.ConfusionMatrix(task='multiclass', num_classes=self.n_classes).to(outputs.get_device())
+            confusion(outputs, labels)
+            computed_confusion = confusion.compute().detach().cpu().numpy().astype(int)
+
+            # confusion matrix
+            df_cm = pd.DataFrame(
+                computed_confusion,
+                index=self._label_ind_by_names.values(),
+                columns=self._label_ind_by_names.values(),
+            )
+
+            fig, ax = plt.subplots(figsize=(10, 5))
+            fig.subplots_adjust(left=0.05, right=.65)
+            sn.set(font_scale=1.2)
+            sn.heatmap(df_cm, annot=True, annot_kws={"size": 16}, fmt='d', ax=ax)
+            ax.legend(
+                self._label_ind_by_names.values(),
+                self._label_ind_by_names.keys(),
+                handler_map={int: IntHandler()},
+                loc='upper left',
+                bbox_to_anchor=(1.2, 1)
+            )
+            buf = io.BytesIO()
+
+            plt.savefig(buf, format='jpeg', bbox_inches='tight')
+            buf.seek(0)
+            im = Image.open(buf)
+            im = torchvision.transforms.ToTensor()(im)
+            tb.add_image("val_confusion_matrix", im, global_step=self.current_epoch)
 
 class DoubleConv(nn.Module):
     """(convolution => [BN] => ReLU) * 2"""
