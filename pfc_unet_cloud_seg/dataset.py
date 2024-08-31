@@ -119,5 +119,7 @@ class CBERS4A_CloudDataset(Dataset):
 
     return {
         'image': img,
-        'mask': mask
+        'image_path': img_file[0],
+        'mask': mask,
+        'mask_path': mask_file[0]
     }
