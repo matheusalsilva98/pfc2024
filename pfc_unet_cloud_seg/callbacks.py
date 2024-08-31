@@ -13,6 +13,7 @@ class MyPrintingCallback(Callback):
         super().__init__()
         self.save_outputs = save_outputs
         self.output_path = output_path
+        self.saved_paths = set()
 
     @staticmethod
     def generate_visualization(fig_title=None, fig_size=None, font_size=16, **images):
@@ -65,50 +66,55 @@ class MyPrintingCallback(Callback):
         device = pl_module.device
         logger = trainer.logger
         
-        for idx, batch in enumerate(val_dl):
-            if idx == 0:
-                image, mask = batch['image'], batch['mask']
+        for batch in val_dl:
+            images, img_paths, masks = batch['image'], batch['img_path'], batch['mask']
+            for image, img_path, mask in zip(images, img_paths, masks):
+                folder_path = os.path.dirname(img_path)
 
-                image = image.unsqueeze(0)
-                image = image.to(device)
+                if folder_path not in self.saved_paths:
+                    image = image.unsqueeze(0)
+                    image = image.to(device)
+        
+                    # mask plot preparation
+                    mask = mask.numpy().astype(np.uint8)
+                    mask = np.squeeze(mask)
+        
+                    # image plot preparation
+                    image = image.to("cpu")
+                    image = image.numpy()
+                    image = np.squeeze(image)
+                    image = image.transpose((1,2,0))
+                    image = image[:,:,:3]
+                    image = (image / image.max()) * 255.
+                    image = image.astype(np.uint8)
+        
+                    # predicted mask plot preparation
+                    predicted_mask = pl_module(image)
+                    predicted_mask = predicted_mask.to("cpu")
+                    predicted_mask = predicted_mask.numpy()
+                    predicted_mask = np.squeeze(predicted_mask)
+                    predicted_mask = np.argmax(predicted_mask, axis=0)
+                    predicted_mask = predicted_mask.astype(np.uint8)
+                    
+                    plot_title = f'{img_path.split('/')[-1].split('.')[0]}_epoch_{trainer.current_epoch}'
+                    plt_result, fig = self.generate_visualization(
+                        fig_title=plot_title,
+                        fig_size=None,
+                        font_size=16,
+                        image=image,
+                        ground_truth_mask=mask,
+                        predicted_mask=predicted_mask,
+                    )
 
-                # mask plot preparation
-                predicted_mask = pl_module(image)
-                predicted_mask = predicted_mask.to("cpu")
-
-                mask = mask.numpy().astype(np.uint8)
-                mask = np.squeeze(mask)
-
-                # image plot preparation
-                image = image.to("cpu")
-                image = image.numpy()
-                image = np.squeeze(image)
-                image = image.transpose((1,2,0))
-                image = image[:,:,:3]
-                image = (image / image.max()) * 255.
-                image = image.astype(np.uint8)
-
-                # predicted mask plot preparation
-                predicted_mask = predicted_mask.numpy()
-                predicted_mask = np.squeeze(predicted_mask)
-                predicted_mask = np.argmax(predicted_mask, axis=0)
-                predicted_mask = predicted_mask.astype(np.uint8)
-                
-                plot_title = f'batch_{idx}'
-                plt_result, fig = self.generate_visualization(
-                    fig_title=plot_title,
-                    fig_size=None,
-                    font_size=16,
-                    image=image,
-                    ground_truth_mask=mask,
-                    predicted_mask=predicted_mask,
-                )
-                if self.save_outputs:
                     saved_image = self.save_plot_to_disk(
                         fig, plot_title, trainer.current_epoch
                     )
                     self.log_data_to_tensorboard(
                         saved_image, plot_title, logger, trainer.current_epoch
                     )
-                plt.close(fig)
+                    plt.close(fig)
+
+                    self.saved_paths.add(folder_path)
+        self.saved_paths.clear()
+        
         return
