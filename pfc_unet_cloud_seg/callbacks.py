@@ -44,9 +44,8 @@ class MyPrintingCallback(Callback):
         image_name = str(Path(image_name).name.split(".")[0])
         report_path = os.path.join(
             self.output_path,
-            "report_image_{name}_epoch_{epoch}.jpg".format(
-                name=image_name,
-                epoch=current_epoch,
+            "report_image_{name}.jpg".format(
+                name=image_name
             ),
         )
         plot.savefig(report_path, format="jpg", bbox_inches="tight")
@@ -94,7 +93,7 @@ class MyPrintingCallback(Callback):
                     predicted_mask = np.argmax(predicted_mask, axis=0)
                     predicted_mask = predicted_mask.astype(np.uint8)
                     
-                    plot_title = f'{img_path.split("/")[-1]}_epoch_{trainer.current_epoch}'
+                    plot_title = f'{img_path.split("/")[-1].split(".")[0]}-epoch_{trainer.current_epoch}'
                     plt_result, fig = self.generate_visualization(
                         fig_title=plot_title,
                         fig_size=None,
