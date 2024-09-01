@@ -79,6 +79,10 @@ class MyPrintingCallback(Callback):
                     # mask plot preparation
                     mask = mask.numpy().astype(np.uint8)
                     mask = np.squeeze(mask)
+
+                    image_vis = imageio.imread(img_path)[:,:,:3]
+                    image_vis = (image_vis / image_vis.max()) * 255.
+                    image_vis = image_vis.astype(np.uint8)
         
                     # image plot preparation
                     image = image.to("cpu")
@@ -100,7 +104,7 @@ class MyPrintingCallback(Callback):
                         fig_title=plot_title,
                         fig_size=None,
                         font_size=16,
-                        image=image,
+                        image=image_vis,
                         ground_truth_mask=mask,
                         predicted_mask=predicted_mask,
                     )
