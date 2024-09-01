@@ -67,6 +67,8 @@ class MyPrintingCallback(Callback):
         logger = trainer.logger
         
         for batch in val_dl:
+            if len(saved_paths) >= 90:
+                break
             images, img_paths, masks = batch['image'], batch['image_path'], batch['mask']
             for image, img_path, mask in zip(images, img_paths, masks):
                 folder_path = os.path.dirname(img_path)
