@@ -74,7 +74,8 @@ class MyPrintingCallback(Callback):
                 if folder_path not in self.saved_paths:
                     image = image.unsqueeze(0)
                     image = image.to(device)
-        
+                    predicted_mask = pl_module(image)
+                    predicted_mask = predicted_mask.to("cpu")
                     # mask plot preparation
                     mask = mask.numpy().astype(np.uint8)
                     mask = np.squeeze(mask)
@@ -89,8 +90,6 @@ class MyPrintingCallback(Callback):
                     image = image.astype(np.uint8)
         
                     # predicted mask plot preparation
-                    predicted_mask = pl_module(image)
-                    predicted_mask = predicted_mask.to("cpu")
                     predicted_mask = predicted_mask.numpy()
                     predicted_mask = np.squeeze(predicted_mask)
                     predicted_mask = np.argmax(predicted_mask, axis=0)
