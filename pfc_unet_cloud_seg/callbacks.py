@@ -67,7 +67,7 @@ class MyPrintingCallback(Callback):
         logger = trainer.logger
         
         for batch in val_dl:
-            if len(saved_paths) >= 90:
+            if len(self.saved_paths) >= 90:
                 break
             images, img_paths, masks = batch['image'], batch['image_path'], batch['mask']
             for image, img_path, mask in zip(images, img_paths, masks):
@@ -78,30 +78,23 @@ class MyPrintingCallback(Callback):
                     image = image.to(device)
                     predicted_mask = pl_module(image)
                     predicted_mask = predicted_mask.to("cpu")
+                    
                     # mask plot preparation
                     mask = mask.numpy().astype(np.uint8)
                     mask = np.squeeze(mask)
-
+                    
+                    # image plot preparation
                     image_vis = imageio.imread(img_path)[:,:,:3]
                     image_vis = (image_vis / image_vis.max()) * 255.
                     image_vis = image_vis.astype(np.uint8)
-        
-                    # image plot preparation
-                    image = image.to("cpu")
-                    image = image.numpy()
-                    image = np.squeeze(image)
-                    image = image.transpose((1,2,0))
-                    image = image[:,:,:3]
-                    image = (image / image.max()) * 255.
-                    image = image.astype(np.uint8)
-        
+                
                     # predicted mask plot preparation
                     predicted_mask = predicted_mask.numpy()
                     predicted_mask = np.squeeze(predicted_mask)
                     predicted_mask = np.argmax(predicted_mask, axis=0)
                     predicted_mask = predicted_mask.astype(np.uint8)
                     
-                    plot_title = f'{img_path.split('/')[-1].split('.')[0]}_epoch_{trainer.current_epoch}'
+                    plot_title = f'{img_path.split("/")[-1]}_epoch_{trainer.current_epoch}'
                     plt_result, fig = self.generate_visualization(
                         fig_title=plot_title,
                         fig_size=None,
