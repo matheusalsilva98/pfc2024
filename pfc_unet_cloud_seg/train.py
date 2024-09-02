@@ -38,7 +38,7 @@ if __name__ == '__main__':
             MyPrintingCallback(output_path=config.LOG_OUTPUT_PATH),
             LearningRateMonitor(logging_interval='step'),
             EarlyStopping(
-                monitor='val_jaccard_index',
+                monitor='val_background_jaccard_index',
                 patience=10,
                 mode="max"
             ),
