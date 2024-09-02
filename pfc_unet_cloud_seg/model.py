@@ -4,6 +4,8 @@ import torch.nn as nn
 import torch.nn.functional as F
 import pytorch_lightning as pl
 from torch import optim
+import torchmetrics
+import pandas as pd
 from torchmetrics.classification import MulticlassJaccardIndex, MulticlassAccuracy, MulticlassPrecision, MulticlassF1Score, MulticlassRecall
 import torchvision
 from torchmetrics.functional import dice
