@@ -61,7 +61,7 @@ class MyPrintingCallback(Callback):
     def on_validation_end(self, trainer, pl_module):
         if not self.save_outputs:
             return
-        val_dl = trainer.datamodule.val_dataloader().dataset
+        val_dl = trainer.datamodule.val_dataloader()
         device = pl_module.device
         logger = trainer.logger
         
