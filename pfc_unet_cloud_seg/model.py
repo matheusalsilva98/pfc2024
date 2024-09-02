@@ -125,7 +125,7 @@ class UNet(pl.LightningModule):
                 'train_sombra_precision': sombra_precision,
                 'train_sombra_f1score': sombra_f1score,
                 'train_sombra_recall': sombra_recall,
-                'comparativo_train_metricas': {'train_background_jaccard_index': background_jaccard_index
+                'comparativo_train_metricas': {'train_background_jaccard_index': background_jaccard_index,
                                                'train_background_accuracy': background_accuracy,
                                                'train_background_precision': background_precision,
                                                'train_background_f1score': background_f1score,
@@ -138,9 +138,9 @@ class UNet(pl.LightningModule):
             sync_dist=True,
         )
 
-        tensorboard_logs = {'jaccard_index': {'train': jaccard_index },'accuracy': {'train': accuracy },
-                            'precision': {'train': precision },'f1score': {'train': f1score },
-                            'recall': {'train': recall }, 'loss':{'train': loss }}
+        tensorboard_logs = {'background_jaccard_index': {'train': background_jaccard_index },'background_accuracy': {'train': background_accuracy },
+                            'background_precision': {'train': background_precision },'background_f1score': {'train': background_f1score },
+                            'background_recall': {'train': background_recall }, 'loss':{'train': loss }}
 
         return {'loss': loss, 'y_pred': y_pred, 'y': y, 'log': tensorboard_logs}
 
@@ -195,13 +195,13 @@ class UNet(pl.LightningModule):
                 'val_sombra_precision': sombra_precision,
                 'val_sombra_f1score': sombra_f1score,
                 'val_sombra_recall': sombra_recall,
-                'comparativo_val_metricas': {'val_jaccard_index': jaccard_index, 
-                                                  'val_background_jaccard_index': background_jaccard_index
-                                                  'val_background_accuracy': background_accuracy,
-                                                  'val_background_precision': background_precision,
-                                                  'val_background_f1score': background_f1score,
-                                                  'val_background_recall': background_recall
-                                                 }
+                'comparativo_val_metricas': {'val_background_jaccard_index': background_jaccard_index, 
+                                              'val_background_jaccard_index': background_jaccard_index,
+                                              'val_background_accuracy': background_accuracy,
+                                              'val_background_precision': background_precision,
+                                              'val_background_f1score': background_f1score,
+                                              'val_background_recall': background_recall
+                                             }
 
             },
             on_step=False, 
@@ -210,9 +210,9 @@ class UNet(pl.LightningModule):
             sync_dist=True,
         )
 
-        tensorboard_logs = {'jaccard_index': {'train': jaccard_index },'accuracy': {'train': accuracy },
-                            'precision': {'train': precision },'f1score': {'train': f1score },
-                            'recall': {'train': recall }, 'loss':{'train': loss }}
+        tensorboard_logs = {'background_jaccard_index': {'train': background_jaccard_index },'background_accuracy': {'train': background_accuracy },
+                            'background_precision': {'train': background_precision },'background_f1score': {'train': background_f1score },
+                            'background_recall': {'train': background_recall }, 'loss':{'train': loss }}
 
         return {'loss': loss, 'log': tensorboard_logs} 
     
