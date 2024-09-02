@@ -9,6 +9,10 @@ import pandas as pd
 from torchmetrics.classification import MulticlassJaccardIndex, MulticlassAccuracy, MulticlassPrecision, MulticlassF1Score, MulticlassRecall
 import torchvision
 from torchmetrics.functional import dice
+import matplotlib.pyplot as plt
+import seaborn as sn
+import io
+from PIL import Image
 
 class IntHandler:
     def legend_artist(self, legend, orig_handle, fontsize, handlebox):

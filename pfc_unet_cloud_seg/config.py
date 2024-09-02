@@ -3,13 +3,13 @@ NUM_CHANNELS = 6
 NUM_CLASSES = 4
 VAL_PERCENT = 0.20
 TEST_PERCENT = 0.10
-BATCH_SIZE = 16
+BATCH_SIZE = 12
 PATCH_SIZE = 512
 NUM_WORKERS = 12
 LEARNING_RATE = 1e-3
 PIN_MEMORY = True
 DROP_LAST = True
-PREFETCH_FACTOR = 10
+PREFETCH_FACTOR = 12
 DATASET_ROOT_DIR = "/mnt/data/borba/pfc_2024/dataset_final"
 # Training Dataset
 # TRAIN_IMGS_DIR = "/mnt/data/borba/pfc_2024/imagens_dataset_pfc/dataset6bandas_treino_valid/imgs_treinamento/images6bands_LOCAL_CONFIG"
