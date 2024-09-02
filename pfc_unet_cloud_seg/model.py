@@ -37,12 +37,6 @@ class UNet(pl.LightningModule):
         self.up4 = Up(128, 64, bilinear)
         self.outc = OutConv(64, n_classes)
 
-        self.jaccard_index = MulticlassJaccardIndex(num_classes=n_classes)
-        self.accuracy = MulticlassAccuracy(num_classes=n_classes)
-        self.precision = MulticlassPrecision(num_classes=n_classes)
-        self.f1score = MulticlassF1Score(num_classes=n_classes)
-        self.recall = MulticlassRecall(num_classes=n_classes)
-
         self.background_jaccard_index = MulticlassJaccardIndex(num_classes=n_classes, average=None)[0]
         self.background_accuracy = MulticlassAccuracy(num_classes=n_classes, average=None)[0]
         self.background_precision = MulticlassPrecision(num_classes=n_classes, average=None)[0]
@@ -83,12 +77,6 @@ class UNet(pl.LightningModule):
     def training_step(self, batch, batch_idx):
         x, y = batch['image'], batch['mask']
         loss, y_pred, y = self._common_step(batch, batch_idx)
-        
-        jaccard_index = self.jaccard_index(y_pred, y)
-        accuracy = self.accuracy(y_pred, y)
-        precision = self.precision(y_pred, y)
-        f1score = self.f1score(y_pred, y)
-        recall = self.recall(y_pred, y)
 
         background_jaccard_index = self.background_jaccard_index(y_pred, y)
         background_accuracy = self.background_accuracy(y_pred, y)
@@ -117,11 +105,6 @@ class UNet(pl.LightningModule):
         self.log_dict(
             {
                 'train': loss,
-                'train_jaccard_index': jaccard_index,
-                'train_accuracy': accuracy,
-                'train_precision': precizion,
-                'train_f1score': f1score,
-                'train_recall': recall,
                 'train_background_jaccard_index': background_jaccard_index,
                 'train_background_accuracy': background_accuracy,
                 'train_background_precision': background_precision,
@@ -142,12 +125,12 @@ class UNet(pl.LightningModule):
                 'train_sombra_precision': sombra_precision,
                 'train_sombra_f1score': sombra_f1score,
                 'train_sombra_recall': sombra_recall,
-                'comparativo_train_jaccard_index': {'train_jaccard_index': jaccard_index, 'train_background_jaccard_index': background_jaccard_index},
-                'comparativo_train_accuracy': {'train_accuracy': accuracy, 'train_background_accuracy': background_accuracy},
-                'comparativo_train_precision': {'train_precision': precizion, 'train_background_precision': background_precision},
-                'comparativo_train_f1score': {'train_f1score': f1score, 'train_background_f1score': background_f1score},
-                'comparativo_train_recall': {'train_recall': recall, 'train_background_recall': background_recall},
-
+                'comparativo_train_metricas': {'train_background_jaccard_index': background_jaccard_index
+                                               'train_background_accuracy': background_accuracy,
+                                               'train_background_precision': background_precision,
+                                               'train_background_f1score': background_f1score,
+                                               'train_background_recall': background_recall
+                                              }
             },
             on_step=False, 
             on_epoch=True, 
@@ -164,12 +147,6 @@ class UNet(pl.LightningModule):
     def validation_step(self, batch, batch_idx):
         x, y = batch['image'], batch['mask']
         loss, y_pred, y = self._common_step(batch, batch_idx)
-        
-        jaccard_index = self.jaccard_index(y_pred, y)
-        accuracy = self.accuracy(y_pred, y)
-        precision = self.precision(y_pred, y)
-        f1score = self.f1score(y_pred, y)
-        recall = self.recall(y_pred, y)
 
         background_jaccard_index = self.background_jaccard_index(y_pred, y)
         background_accuracy = self.background_accuracy(y_pred, y)
@@ -198,11 +175,6 @@ class UNet(pl.LightningModule):
         self.log_dict(
             {
                 'val': loss,
-                'val_jaccard_index': jaccard_index,
-                'val_accuracy': accuracy,
-                'val_precision': precizion,
-                'val_f1score': f1score,
-                'val_recall': recall,
                 'val_background_jaccard_index': background_jaccard_index,
                 'val_background_accuracy': background_accuracy,
                 'val_background_precision': background_precision,
@@ -223,11 +195,13 @@ class UNet(pl.LightningModule):
                 'val_sombra_precision': sombra_precision,
                 'val_sombra_f1score': sombra_f1score,
                 'val_sombra_recall': sombra_recall,
-                'comparativo_val_jaccard_index': {'val_jaccard_index': jaccard_index, 'val_background_jaccard_index': background_jaccard_index},
-                'comparativo_val_accuracy': {'val_accuracy': accuracy, 'val_background_accuracy': background_accuracy},
-                'comparativo_val_precision': {'val_precision': precizion, 'val_background_precision': background_precision},
-                'comparativo_val_f1score': {'val_f1score': f1score, 'val_background_f1score': background_f1score},
-                'comparativo_val_recall': {'val_recall': recall, 'val_background_recall': background_recall},
+                'comparativo_val_metricas': {'val_jaccard_index': jaccard_index, 
+                                                  'val_background_jaccard_index': background_jaccard_index
+                                                  'val_background_accuracy': background_accuracy,
+                                                  'val_background_precision': background_precision,
+                                                  'val_background_f1score': background_f1score,
+                                                  'val_background_recall': background_recall
+                                                 }
 
             },
             on_step=False, 
