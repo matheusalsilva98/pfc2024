@@ -13,6 +13,7 @@ import matplotlib.pyplot as plt
 import seaborn as sn
 import io
 from PIL import Image
+import config
 
 #class IntHandler:
 #    def legend_artist(self, legend, orig_handle, fontsize, handlebox):
@@ -133,7 +134,7 @@ class UNet(pl.LightningModule):
                 'train_sombra_recall': sombra_recall,
             },
             on_step=True, 
-            on_epoch=False, 
+            on_epoch=True, 
             prog_bar=True,
             sync_dist=True,
         )
@@ -197,7 +198,7 @@ class UNet(pl.LightningModule):
                 'val_sombra_recall': sombra_recall,
             },
             on_step=True, 
-            on_epoch=False, 
+            on_epoch=True, 
             prog_bar=True,
             sync_dist=True,
         )

@@ -44,6 +44,7 @@ if __name__ == '__main__':
             StochasticWeightAveraging(swa_lrs=1e-3),
         ],
         sync_batchnorm=True,
+        gradient_clip_val=0.75,
     )
     trainer.fit(model, dm)
     trainer.validate(model, dm)
