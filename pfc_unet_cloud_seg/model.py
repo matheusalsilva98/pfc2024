@@ -22,7 +22,7 @@ from PIL import Image
 #        return text
 
 class UNet(pl.LightningModule):
-    def __init__(self, n_channels=4, n_classes=4, learning_rate=1e-3, bilinear=True):
+    def __init__(self, n_channels=config.NUM_CHANNELS, n_classes=config.NUM_CLASSES, learning_rate=config.LEARNING_RATE, bilinear=True):
         super(UNet, self).__init__()
         self.n_channels = n_channels
         self.n_classes = n_classes
