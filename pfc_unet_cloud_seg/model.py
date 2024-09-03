@@ -133,16 +133,12 @@ class UNet(pl.LightningModule):
                 'train_sombra_recall': sombra_recall,
             },
             on_step=True, 
-            on_epoch=False, 
+            on_epoch=True, 
             prog_bar=True,
             sync_dist=True,
         )
-
-        tensorboard_logs = {'background_jaccard_index': {'train': background_jaccard_index },'background_accuracy': {'train': background_accuracy },
-                            'background_precision': {'train': background_precision },'background_f1score': {'train': background_f1score },
-                            'background_recall': {'train': background_recall }, 'loss':{'train': loss }}
-
-        return {'loss': loss, 'y_pred': y_pred, 'y': y, 'log': tensorboard_logs}
+        
+        return {'loss': loss, 'y_pred': y_pred, 'y': y}
 
     def validation_step(self, batch, batch_idx):
         x, y = batch['image'], batch['mask']
@@ -197,16 +193,12 @@ class UNet(pl.LightningModule):
                 'val_sombra_recall': sombra_recall,
             },
             on_step=True, 
-            on_epoch=False, 
+            on_epoch=True, 
             prog_bar=True,
             sync_dist=True,
         )
 
-        tensorboard_logs = {'background_jaccard_index': {'train': background_jaccard_index },'background_accuracy': {'train': background_accuracy },
-                            'background_precision': {'train': background_precision },'background_f1score': {'train': background_f1score },
-                            'background_recall': {'train': background_recall }, 'loss':{'train': loss }}
-
-        return {'loss': loss, 'log': tensorboard_logs} 
+        return {'loss': loss} 
     
     def test_step(self, batch, batch_idx):
         loss, y_pred, y = self._common_step(batch, batch_idx)
