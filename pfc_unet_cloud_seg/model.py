@@ -208,7 +208,7 @@ class UNet(pl.LightningModule):
                             'background_precision': {'train': background_precision },'background_f1score': {'train': background_f1score },
                             'background_recall': {'train': background_recall }, 'loss':{'train': loss }}
 
-        return {'loss': loss, , 'log': tensorboard_logs} 
+        return {'loss': loss, 'log': tensorboard_logs} 
     
     def test_step(self, batch, batch_idx):
         loss, y_pred, y = self._common_step(batch, batch_idx)
