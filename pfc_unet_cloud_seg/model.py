@@ -14,12 +14,12 @@ import seaborn as sn
 import io
 from PIL import Image
 
-class IntHandler:
-    def legend_artist(self, legend, orig_handle, fontsize, handlebox):
-        x0, y0 = handlebox.xdescent, handlebox.ydescent
-        text = plt.matplotlib.text.Text(x0, y0, str(orig_handle))
-        handlebox.add_artist(text)
-        return text
+#class IntHandler:
+#    def legend_artist(self, legend, orig_handle, fontsize, handlebox):
+#        x0, y0 = handlebox.xdescent, handlebox.ydescent
+#        text = plt.matplotlib.text.Text(x0, y0, str(orig_handle))
+#        handlebox.add_artist(text)
+#        return text
 
 class UNet(pl.LightningModule):
     def __init__(self, n_channels=4, n_classes=4, learning_rate=1e-3, bilinear=True):
