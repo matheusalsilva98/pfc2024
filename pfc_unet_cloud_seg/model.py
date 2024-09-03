@@ -131,15 +131,9 @@ class UNet(pl.LightningModule):
                 'train_sombra_precision': sombra_precision,
                 'train_sombra_f1score': sombra_f1score,
                 'train_sombra_recall': sombra_recall,
-                'comparativo_train_metricas': {'train_background_jaccard_index': background_jaccard_index,
-                                               'train_background_accuracy': background_accuracy,
-                                               'train_background_precision': background_precision,
-                                               'train_background_f1score': background_f1score,
-                                               'train_background_recall': background_recall
-                                              }
             },
-            on_step=False, 
-            on_epoch=True, 
+            on_step=True, 
+            on_epoch=False, 
             prog_bar=True,
             sync_dist=True,
         )
@@ -201,17 +195,9 @@ class UNet(pl.LightningModule):
                 'val_sombra_precision': sombra_precision,
                 'val_sombra_f1score': sombra_f1score,
                 'val_sombra_recall': sombra_recall,
-                'comparativo_val_metricas': {'val_background_jaccard_index': background_jaccard_index, 
-                                              'val_background_jaccard_index': background_jaccard_index,
-                                              'val_background_accuracy': background_accuracy,
-                                              'val_background_precision': background_precision,
-                                              'val_background_f1score': background_f1score,
-                                              'val_background_recall': background_recall
-                                             }
-
             },
-            on_step=False, 
-            on_epoch=True, 
+            on_step=True, 
+            on_epoch=False, 
             prog_bar=True,
             sync_dist=True,
         )
