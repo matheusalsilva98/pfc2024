@@ -220,7 +220,7 @@ class UNet(pl.LightningModule):
                             'background_precision': {'train': background_precision },'background_f1score': {'train': background_f1score },
                             'background_recall': {'train': background_recall }, 'loss':{'train': loss }}
 
-        return {'loss': loss, 'y_pred': y_pred, 'y': y, 'log': tensorboard_logs} 
+        return {'loss': loss, 'log': tensorboard_logs} 
     
     def test_step(self, batch, batch_idx):
         loss, y_pred, y = self._common_step(batch, batch_idx)
@@ -259,45 +259,45 @@ class UNet(pl.LightningModule):
     def configure_optimizers(self):
         optimizer = optim.Adam(self.parameters(), lr=self.lr)
         scheduler = optim.lr_scheduler.ReduceLROnPlateau(optimizer, 'min', patience=2)
-        return {"optimizer": optimizer, "lr_scheduler": scheduler, "monitor": "validation_loss"}
+        return {"optimizer": optimizer, "lr_scheduler": scheduler, "monitor": "val"}
 
-    def validation_epoch_end(self, outs):
-        # see https://github.com/Lightning-AI/metrics/blob/ff61c482e5157b43e647565fa0020a4ead6e9d61/docs/source/pages/lightning.rst
-        # each forward pass, thus leading to wrong accumulation. In practice do the following:
-        tb = self.logger.experiment  # noqa
+    # def validation_epoch_end(self, outs):
+    #     # see https://github.com/Lightning-AI/metrics/blob/ff61c482e5157b43e647565fa0020a4ead6e9d61/docs/source/pages/lightning.rst
+    #     # each forward pass, thus leading to wrong accumulation. In practice do the following:
+    #     tb = self.logger.experiment  # noqa
 
-        outputs = torch.cat([tmp['y_pred'] for tmp in outs])
-        labels = torch.cat([tmp['y'] for tmp in outs])
+    #     outputs = torch.cat([tmp['y_pred'] for tmp in outs])
+    #     labels = torch.cat([tmp['y'] for tmp in outs])
 
-        confusion = torchmetrics.ConfusionMatrix(task='multiclass', num_classes=self.n_classes).to(outputs.get_device())
-        confusion(outputs, labels)
-        computed_confusion = confusion.compute().detach().cpu().numpy().astype(int)
+    #     confusion = torchmetrics.ConfusionMatrix(task='multiclass', num_classes=self.n_classes).to(outputs.get_device())
+    #     confusion(outputs, labels)
+    #     computed_confusion = confusion.compute().detach().cpu().numpy().astype(int)
 
-        # confusion matrix
-        df_cm = pd.DataFrame(
-            computed_confusion,
-            index=self._label_ind_by_names.values(),
-            columns=self._label_ind_by_names.values(),
-        )
+    #     # confusion matrix
+    #     df_cm = pd.DataFrame(
+    #         computed_confusion,
+    #         index=self._label_ind_by_names.values(),
+    #         columns=self._label_ind_by_names.values(),
+    #     )
 
-        fig, ax = plt.subplots(figsize=(10, 5))
-        fig.subplots_adjust(left=0.05, right=.65)
-        sn.set(font_scale=1.2)
-        sn.heatmap(df_cm, annot=True, annot_kws={"size": 16}, fmt='d', ax=ax)
-        ax.legend(
-            self._label_ind_by_names.values(),
-            self._label_ind_by_names.keys(),
-            handler_map={int: IntHandler()},
-            loc='upper left',
-            bbox_to_anchor=(1.2, 1)
-        )
-        buf = io.BytesIO()
+    #     fig, ax = plt.subplots(figsize=(10, 5))
+    #     fig.subplots_adjust(left=0.05, right=.65)
+    #     sn.set(font_scale=1.2)
+    #     sn.heatmap(df_cm, annot=True, annot_kws={"size": 16}, fmt='d', ax=ax)
+    #     ax.legend(
+    #         self._label_ind_by_names.values(),
+    #         self._label_ind_by_names.keys(),
+    #         handler_map={int: IntHandler()},
+    #         loc='upper left',
+    #         bbox_to_anchor=(1.2, 1)
+    #     )
+    #     buf = io.BytesIO()
 
-        plt.savefig(buf, format='jpeg', bbox_inches='tight')
-        buf.seek(0)
-        im = Image.open(buf)
-        im = torchvision.transforms.ToTensor()(im)
-        tb.add_image("val_confusion_matrix", im, global_step=self.current_epoch)
+    #     plt.savefig(buf, format='jpeg', bbox_inches='tight')
+    #     buf.seek(0)
+    #     im = Image.open(buf)
+    #     im = torchvision.transforms.ToTensor()(im)
+    #     tb.add_image("val_confusion_matrix", im, global_step=self.current_epoch)
 
 class DoubleConv(nn.Module):
     """(convolution => [BN] => ReLU) * 2"""

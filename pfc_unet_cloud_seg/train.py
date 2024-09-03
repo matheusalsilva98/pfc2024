@@ -33,7 +33,6 @@ if __name__ == '__main__':
         precision=config.PRECISION,
         min_epochs=config.MIN_EPOCHS, 
         max_epochs=config.MAX_EPOCHS, 
-        # precision=config.PRECISION,
         callbacks=[
             MyPrintingCallback(output_path=config.LOG_OUTPUT_PATH),
             LearningRateMonitor(logging_interval='step'),
