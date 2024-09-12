@@ -244,9 +244,14 @@ class UNet(pl.LightningModule):
         preds = torch.argmax(y_pred, dim=1)
         return preds
     
+    def set_steps_per_epoch(self, steps_per_epoch):
+        self.steps_per_epoch = steps_per_epoch
+    
     def configure_optimizers(self):
-        optimizer = optim.Adam(self.parameters(), lr=self.lr)
-        scheduler = optim.lr_scheduler.ReduceLROnPlateau(optimizer, 'min', patience=2)
+        # optimizer = optim.Adam(self.parameters(), lr=self.lr)
+        optimizer = optim.AdamW(self.parameters(), lr=self.lr, weight_decay=1e-6)
+        scheduler = optim.lr_scheduler.OneCycleLR(optimizer, max_lr=self.lr, steps_per_epoch=self.steps_per_epoch, epochs=config.MAX_EPOCHS)
+        # scheduler = optim.lr_scheduler.ReduceLROnPlateau(optimizer, 'min', patience=2)
         return {"optimizer": optimizer, "lr_scheduler": scheduler, "monitor": "val"}
 
     # def validation_epoch_end(self, outs):

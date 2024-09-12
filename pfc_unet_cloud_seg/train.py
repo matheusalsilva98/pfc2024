@@ -11,16 +11,9 @@ from pytorch_lightning.loggers import TensorBoardLogger
 
 if __name__ == '__main__':
     logger = TensorBoardLogger('tb_logs', name='unet_model_v1_6bandas')
-    model = UNet(
-        n_channels=config.NUM_CHANNELS, 
-        n_classes=config.NUM_CLASSES, 
-        learning_rate=config.LEARNING_RATE, 
-        bilinear=True,
-    )
-    model = model.float()
     if hasattr(config, "CHECKPOINT"):
         print(f"Resuming from {config.CHECKPOINT}")
-        dm = UNetDataModule.load_from_checkpoint(
+        model = UNet.load_from_checkpoint(
             config.CHECKPOINT,
             root_dir=config.DATASET_ROOT_DIR,
             batch_size=config.BATCH_SIZE,
@@ -28,12 +21,22 @@ if __name__ == '__main__':
             use_augmentations=config.USE_AUGMENTATIONS,
         )
     else:
-        dm = UNetDataModule(
-            root_dir=config.DATASET_ROOT_DIR,
-            batch_size=config.BATCH_SIZE,
-            num_workers=config.NUM_WORKERS,
-            use_augmentations=config.USE_AUGMENTATIONS,
+        model = UNet(
+            n_channels=config.NUM_CHANNELS, 
+            n_classes=config.NUM_CLASSES, 
+            learning_rate=config.LEARNING_RATE, 
+            bilinear=True,
         )
+    model = model.float()
+    dm = UNetDataModule(
+        root_dir=config.DATASET_ROOT_DIR,
+        batch_size=config.BATCH_SIZE,
+        num_workers=config.NUM_WORKERS,
+        use_augmentations=config.USE_AUGMENTATIONS,
+    )
+    dm.setup(None)
+    steps_per_epoch = len(dm.train_dataloader())
+    model.set_steps_per_epoch(steps_per_epoch)
 
     trainer = pl.Trainer(
         # profiler='simple',
@@ -55,7 +58,6 @@ if __name__ == '__main__':
             StochasticWeightAveraging(swa_lrs=1e-3),
         ],
         sync_batchnorm=True,
-        gradient_clip_val=0.75,
     )
     trainer.fit(model, dm)
-    trainer.validate(model, dm)
+    # trainer.validate(model, dm)
