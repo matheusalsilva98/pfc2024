@@ -18,12 +18,23 @@ if __name__ == '__main__':
         bilinear=True,
     )
     model = model.float()
-    dm = UNetDataModule(
-        root_dir=config.DATASET_ROOT_DIR,
-        batch_size=config.BATCH_SIZE,
-        num_workers=config.NUM_WORKERS,
-        use_augmentations=config.USE_AUGMENTATIONS,
-    )
+    if hasattr(config, "CHECKPOINT"):
+        print(f"Resuming from {config.CHECKPOINT}")
+        dm = UNetDataModule.load_from_checkpoint(
+            config.CHECKPOINT,
+            root_dir=config.DATASET_ROOT_DIR,
+            batch_size=config.BATCH_SIZE,
+            num_workers=config.NUM_WORKERS,
+            use_augmentations=config.USE_AUGMENTATIONS,
+        )
+    else:
+        dm = UNetDataModule(
+            root_dir=config.DATASET_ROOT_DIR,
+            batch_size=config.BATCH_SIZE,
+            num_workers=config.NUM_WORKERS,
+            use_augmentations=config.USE_AUGMENTATIONS,
+        )
+
     trainer = pl.Trainer(
         # profiler='simple',
         logger=logger,
