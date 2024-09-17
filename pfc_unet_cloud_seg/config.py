@@ -25,9 +25,9 @@ LOG_OUTPUT_PATH = "/mnt/data/borba/pfc_2024/"
 ACCELERATOR = 'cuda'
 DEVICES = 3
 MIN_EPOCHS = 1
-MAX_EPOCHS = 200
+MAX_EPOCHS = 100
 PRECISION = 32
 
-CHECKPOINT = "/mnt/data/borba/pfc_2024/pfc2024/pesos_treinamento_epoca13.ckpt"
+# CHECKPOINT = "/mnt/data/borba/pfc_2024/pfc2024/pesos_treinamento_epoca13.ckpt"
 
 USE_AUGMENTATIONS = True

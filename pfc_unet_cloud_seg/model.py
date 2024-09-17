@@ -252,7 +252,7 @@ class UNet(pl.LightningModule):
         optimizer = optim.AdamW(self.parameters(), lr=self.lr, weight_decay=1e-6)
         scheduler = optim.lr_scheduler.OneCycleLR(optimizer, max_lr=self.lr, steps_per_epoch=self.steps_per_epoch, epochs=config.MAX_EPOCHS)
         # scheduler = optim.lr_scheduler.ReduceLROnPlateau(optimizer, 'min', patience=2)
-        return {"optimizer": optimizer, "lr_scheduler": scheduler, "monitor": "val"}
+        return {"optimizer": optimizer, "lr_scheduler": scheduler, "monitor": "val", "frequency": "step", "frequency": 1}
 
     # def validation_epoch_end(self, outs):
     #     # see https://github.com/Lightning-AI/metrics/blob/ff61c482e5157b43e647565fa0020a4ead6e9d61/docs/source/pages/lightning.rst
