@@ -1,9 +1,9 @@
 import numpy as np
 import os
 from pathlib import Path
-from dataset import CBERS4A_CloudDataset
-from model import UNet
-import config
+from unet.dataset import CBERS4A_CloudDataset
+from unet.model import UNet
+import unet.config as config
 from torch.utils.data import DataLoader, random_split
 import matplotlib.pyplot as plt
 import torch

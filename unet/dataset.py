@@ -8,7 +8,7 @@ from os.path import splitext
 from os import listdir
 import imageio.v2 as imageio
 from torch.utils.data import DataLoader, random_split
-import config
+import unet.config as config
 import numpy as np
 from pathlib import Path
 from collections import defaultdict

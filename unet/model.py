@@ -13,7 +13,7 @@ import matplotlib.pyplot as plt
 import seaborn as sn
 import io
 from PIL import Image
-import config
+import unet.config as config
 
 #class IntHandler:
 #    def legend_artist(self, legend, orig_handle, fontsize, handlebox):

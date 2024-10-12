@@ -1,9 +1,9 @@
 import torch
 import pytorch_lightning as pl
-from model import UNet
-from dataset import UNetDataModule
-import config
-from callbacks import MyPrintingCallback, EarlyStopping
+from unet.model import UNet
+from unet.dataset import UNetDataModule
+import unet.config as config
+from unet.callbacks import MyPrintingCallback, EarlyStopping
 from pytorch_lightning.callbacks import LearningRateMonitor, StochasticWeightAveraging
 from pytorch_lightning.loggers import TensorBoardLogger
 
