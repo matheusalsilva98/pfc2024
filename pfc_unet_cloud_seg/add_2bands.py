@@ -2,6 +2,7 @@ import imageio.v2 as imageio
 from osgeo import gdal
 import numpy as np
 import os
+# alteracao
 
 def CreateGeoTiff(outRaster, data, geo_transform, projection, dtype):
     driver = gdal.GetDriverByName('GTiff')
