@@ -26,32 +26,41 @@ A metodologia de treinamento e testes da U-Net consistiu, basicamente, nos fluxo
 
 * Treinar a rede neural convoluciona U-Net:
 
-![fluxograma-fase-treinamento](https://github.com/user-attachments/assets/2d01f869-d2d8-4fcd-95ec-60823ae9c4bc)
+<img src="https://github.com/user-attachments/assets/2d01f869-d2d8-4fcd-95ec-60823ae9c4bc" width="800px" height="600px"/>
 
 * Realizar os testes com os pesos salvos dos treinamentos realizados:
 
-![fluxograma-fase-teste](https://github.com/user-attachments/assets/21650c50-2f52-4123-ac61-6f505f0a00ea)
+<img src="https://github.com/user-attachments/assets/21650c50-2f52-4123-ac61-6f505f0a00ea" width="800px" height="600px"/>
 
+## Resultados
 
-[Acesse o link aqui](https://www.youtube.com/)
+Todas os resultado gerados, que se resumem nas máscaras de inferência das cenas de teste coletadas e nos mosaicos dos melhores resultados, podem ser encontrada no Google Drive no link abaixo:
 
-jaccard index | Acurácia | Precisão
-:---: | :---: | :---:
-0.9 | 0.89 | 0.98
+Acesse o link do Google Drive [__aqui__](https://drive.google.com/drive/folders/12FPAsRHy8TSv26dNB28zOAmXbfW_RV-v?usp=sharing)
 
-Não entendo o comando `document.getElementById()`
+Segue abaixo um exemplo dos resultados obtidos:
 
-Código em Python:
+<img src="https://github.com/user-attachments/assets/42c463f6-e442-4f31-afa7-b9c4beaf8ce3" width="100px" height="100px"/>
+<img src="https://github.com/user-attachments/assets/9a53ec4e-3e9d-4dbf-8650-5a6d415128ea" width="100px" height="100px"/>
 
-```
-num = int('Digite um valor: ')
-if num % 2 == 0:
-  print(f'O valor {num} é PAR')
-else:
-  print(f'O valor {num} é ÍMPAR')
-```
+<img src="https://github.com/user-attachments/assets/307e832b-a932-4377-86a6-929f105e0e56" width="100px" height="100px"/>
+<img src="https://github.com/user-attachments/assets/68841153-a802-40ef-a773-9490f66f7079" width="100px" height="100px"/>
 
-Exemplos de emoji 🇧🇷
+<img src="https://github.com/user-attachments/assets/cc136e8a-78bd-480b-b052-9b16df175a16" width="100px" height="100px"/>
+<img src="https://github.com/user-attachments/assets/4c3acb27-0d81-4f18-9e5c-c4cd89dbf1fd" width="100px" height="100px"/>
 
-Criando um quote
-> Aqui está o quote!
+<br>
+<img src="https://github.com/user-attachments/assets/b4fcf25f-5d26-4de5-8b5d-b831d6fb1e3e" width="300px" height="300px"/>
+
+## Contato
+
+Para mais informações sobre o projeto, favor entrar em contato com os autores por algum dos emails abaixo:
+
+➡️ reginaldo.filho@ime.eb.br
+<br>
+➡️ matheus.silva@ime.eb.br
+<br>
+<br>
+Mapear, Nobre Missão!
+<br>
+🛰️🇧🇷
