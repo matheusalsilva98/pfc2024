@@ -1,4 +1,4 @@
-# Elaboração de ferramenta para geração de mosaicos de imagens CBERS-4A livres de nuvens utilizando aprendizado profundo
+# Geração de mosaicos de imagens CBERS-4A livres de nuvens utilizando aprendizado profundo
 ***
 Projeto desenvolvido durante o Curso de Graduação em Engenharia Cartográfica pelo IME como Projeto de FInal de Curso (PFC).
 
